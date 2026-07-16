@@ -1,0 +1,27 @@
+{
+  "default_branch": "main",
+  "branches": [
+    "feat/gelato",
+    "main",
+    "origin",
+    "v2/refactor-story-creation",
+    "v2feat/admin-profile",
+    "v3/page-refactor"
+  ],
+  "parent": {
+    "feat/gelato": "main",
+    "main": null,
+    "origin": "main",
+    "v2/refactor-story-creation": "main",
+    "v2feat/admin-profile": "main",
+    "v3/page-refactor": "main"
+  },
+  "order": [
+    "main",
+    "feat/gelato",
+    "origin",
+    "v2/refactor-story-creation",
+    "v2feat/admin-profile",
+    "v3/page-refactor"
+  ]
+}
