@@ -29,8 +29,9 @@ export const apiSlice = createApi({
     }),
     getAllUsers: builder.query({
       query: (args: { page?: number; limit?: number } | void) => {
-        const page = args?.page || 1;
-        const limit = args?.limit || 10;
+        const argObj = (args || {}) as { page?: number; limit?: number };
+        const page = argObj.page || 1;
+        const limit = argObj.limit || 10;
         return `/users?page=${page}&limit=${limit}`;
       },
       providesTags: ['User'],
@@ -52,8 +53,9 @@ export const apiSlice = createApi({
     }),
     getAllStories: builder.query({
       query: (args: { page?: number; limit?: number } | void) => {
-        const page = args?.page || 1;
-        const limit = args?.limit || 9;
+        const argObj = (args || {}) as { page?: number; limit?: number };
+        const page = argObj.page || 1;
+        const limit = argObj.limit || 9;
         return `/story/all-stories?page=${page}&limit=${limit}`;
       },
       providesTags: ['Story'],
@@ -109,8 +111,9 @@ export const apiSlice = createApi({
     }),
     getAllOrders: builder.query({
       query: (args: { page?: number; limit?: number } | void) => {
-        const page = args?.page || 1;
-        const limit = args?.limit || 10;
+        const queryArgs = args as { page?: number; limit?: number } | undefined;
+        const page = queryArgs?.page || 1;
+        const limit = queryArgs?.limit || 10;
         return `/orders/admin/all?page=${page}&limit=${limit}`;
       },
       providesTags: ['Order'],
@@ -189,6 +192,34 @@ export const apiSlice = createApi({
       }),
       invalidatesTags: ['HeroCms'],
     }),
+    updateAdminProfile: builder.mutation({
+      query: (data) => ({
+        url: '/admin/update-profile',
+        method: 'PATCH',
+        body: data,
+      }),
+    }),
+    changeAdminPassword: builder.mutation({
+      query: (data) => ({
+        url: '/admin/change-password',
+        method: 'PATCH',
+        body: data,
+      }),
+    }),
+    requestPasswordOtp: builder.mutation({
+      query: (data) => ({
+        url: '/admin/forgot-password/request-otp',
+        method: 'POST',
+        body: data,
+      }),
+    }),
+    verifyPasswordReset: builder.mutation({
+      query: (data) => ({
+        url: '/admin/forgot-password/verify-reset',
+        method: 'POST',
+        body: data,
+      }),
+    }),
   }),
 });
 
@@ -220,4 +251,8 @@ export const {
   useGetHeroCmsQuery,
   useUpdateHeroCmsMutation,
   useGetGelatoStatsQuery,
+  useUpdateAdminProfileMutation,
+  useChangeAdminPasswordMutation,
+  useRequestPasswordOtpMutation,
+  useVerifyPasswordResetMutation,
 } = apiSlice;

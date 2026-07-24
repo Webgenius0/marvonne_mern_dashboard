@@ -2,8 +2,11 @@ import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Settings as SettingsIcon, Save, Loader2, BookOpen, Layers, DollarSign } from 'lucide-react';
-import { useGetSettingsQuery, useUpdateSettingsMutation } from '../store/apiSlice';
+import { Settings as SettingsIcon, Save, Loader2, BookOpen, Layers, DollarSign, User, Key } from 'lucide-react';
+import { useGetSettingsQuery, useUpdateSettingsMutation, useUpdateAdminProfileMutation, useChangeAdminPasswordMutation } from '../store/apiSlice';
+import { useSelector, useDispatch } from 'react-redux';
+import type { RootState } from '../store';
+import { setCredentials } from '../store/authSlice';
 
 const settingsSchema = z.object({
   min_words_per_page: z.number().min(1, 'Minimum words must be at least 1'),
@@ -19,10 +22,31 @@ const settingsSchema = z.object({
 
 type SettingsForm = z.infer<typeof settingsSchema>;
 
+const profileSchema = z.object({
+  email: z.string().email("Invalid email address"),
+});
+type ProfileForm = z.infer<typeof profileSchema>;
+
+const passwordSchema = z.object({
+  currentPassword: z.string().min(1, 'Current password is required'),
+  newPassword: z.string().min(8, 'New password must be at least 8 characters long'),
+  confirmPassword: z.string(),
+}).refine(data => data.newPassword === data.confirmPassword, {
+  message: "Passwords don't match",
+  path: ["confirmPassword"]
+});
+type PasswordForm = z.infer<typeof passwordSchema>;
+
 export default function Settings() {
   const [toastMsg, setToastMsg] = useState('');
   const { data: settingsResponse, isLoading: isFetching } = useGetSettingsQuery({});
   const [updateSettings, { isLoading: isUpdating }] = useUpdateSettingsMutation();
+  const [updateProfile, { isLoading: isUpdatingProfile }] = useUpdateAdminProfileMutation();
+  const [changePassword, { isLoading: isChangingPassword }] = useChangeAdminPasswordMutation();
+
+  const user = useSelector((state: RootState) => state.auth.user);
+  const token = useSelector((state: RootState) => state.auth.token);
+  const dispatch = useDispatch();
 
   const {
     register,
@@ -31,6 +55,24 @@ export default function Settings() {
     formState: { errors, isDirty },
   } = useForm<SettingsForm>({
     resolver: zodResolver(settingsSchema),
+  });
+
+  const {
+    register: registerProfile,
+    handleSubmit: handleSubmitProfile,
+    formState: { errors: profileErrors, isDirty: isProfileDirty },
+  } = useForm<ProfileForm>({
+    resolver: zodResolver(profileSchema),
+    defaultValues: { email: user?.email || '' }
+  });
+
+  const {
+    register: registerPassword,
+    handleSubmit: handleSubmitPassword,
+    reset: resetPasswordForm,
+    formState: { errors: passwordErrors, isDirty: isPasswordDirty },
+  } = useForm<PasswordForm>({
+    resolver: zodResolver(passwordSchema),
   });
 
   useEffect(() => {
@@ -46,15 +88,41 @@ export default function Settings() {
     }
   }, [settingsResponse, reset]);
 
+  const showToast = (msg: string) => {
+    setToastMsg(msg);
+    setTimeout(() => setToastMsg(''), 3000);
+  };
+
   const onSubmit = async (data: SettingsForm) => {
     try {
       await updateSettings(data).unwrap();
-      setToastMsg("Settings saved successfully!");
-      setTimeout(() => setToastMsg(''), 3000);
+      showToast("Settings saved successfully!");
     } catch (error) {
       console.error('Failed to update settings:', error);
-      setToastMsg("Failed to update settings");
-      setTimeout(() => setToastMsg(''), 3000);
+      showToast("Failed to update settings");
+    }
+  };
+
+  const onProfileSubmit = async (data: ProfileForm) => {
+    try {
+      const res = await updateProfile(data).unwrap();
+      // Update local state with new user info
+      dispatch(setCredentials({ user: res.data, token: token as string }));
+      showToast("Profile updated successfully!");
+    } catch (error: any) {
+      console.error('Failed to update profile:', error);
+      showToast(error?.data?.message || "Failed to update profile");
+    }
+  };
+
+  const onPasswordSubmit = async (data: PasswordForm) => {
+    try {
+      await changePassword({ currentPassword: data.currentPassword, newPassword: data.newPassword }).unwrap();
+      showToast("Password changed successfully!");
+      resetPasswordForm();
+    } catch (error: any) {
+      console.error('Failed to change password:', error);
+      showToast(error?.data?.message || "Failed to change password");
     }
   };
 
@@ -67,7 +135,8 @@ export default function Settings() {
   }
 
   return (
-    <div className="mx-auto max-w-4xl p-4 md:p-8">
+    <div className="mx-auto max-w-4xl p-4 md:p-8 space-y-8">
+      {/* Header */}
       <div className="bg-gradient-to-r from-[#0a192f] to-[#0f3a4a] p-6 sm:p-10 flex flex-col sm:flex-row items-center justify-between rounded-3xl shadow-xl mb-8">
         <div className="flex items-center space-x-4 mb-4 sm:mb-0">
           <div className="bg-[#bef264]/20 p-3 rounded-2xl">
@@ -75,20 +144,113 @@ export default function Settings() {
           </div>
           <div>
             <h1 className="text-3xl font-extrabold text-white tracking-tight">System Settings</h1>
-            <p className="text-[#bef264] font-medium mt-1">Configure global parameters for AI generation and platform limits.</p>
+            <p className="text-[#bef264] font-medium mt-1">Configure global parameters and account settings.</p>
           </div>
         </div>
       </div>
 
+      {/* Admin Profile Section */}
       <div className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
         <div className="border-b border-gray-100 bg-gray-50/50 px-6 py-4">
-          <h2 className="font-semibold text-gray-900">Story Generation Rules</h2>
+          <h2 className="font-semibold text-gray-900 flex items-center">
+            <User className="mr-2 h-5 w-5 text-indigo-500" />
+            Admin Profile
+          </h2>
+        </div>
+        <form onSubmit={handleSubmitProfile(onProfileSubmit)} className="p-6 space-y-5">
+          <div>
+            <label className="mb-1 block text-sm text-gray-700">Email Address</label>
+            <input
+              type="email"
+              {...registerProfile('email')}
+              className="w-full rounded-lg border border-gray-200 px-4 py-2.5 text-sm transition-all focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+            />
+            {profileErrors.email && (
+              <p className="mt-1 text-xs font-medium text-red-500">{profileErrors.email.message}</p>
+            )}
+          </div>
+          <div className="flex justify-end pt-2">
+            <button
+              type="submit"
+              disabled={!isProfileDirty || isUpdatingProfile}
+              className="flex items-center justify-center rounded-xl bg-indigo-600 px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isUpdatingProfile ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
+              Update Profile
+            </button>
+          </div>
+        </form>
+      </div>
+
+      {/* Admin Password Section */}
+      <div className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
+        <div className="border-b border-gray-100 bg-gray-50/50 px-6 py-4">
+          <h2 className="font-semibold text-gray-900 flex items-center">
+            <Key className="mr-2 h-5 w-5 text-indigo-500" />
+            Change Password
+          </h2>
+        </div>
+        <form onSubmit={handleSubmitPassword(onPasswordSubmit)} className="p-6 space-y-5">
+          <div>
+            <label className="mb-1 block text-sm text-gray-700">Current Password</label>
+            <input
+              type="password"
+              {...registerPassword('currentPassword')}
+              className="w-full rounded-lg border border-gray-200 px-4 py-2.5 text-sm transition-all focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+            />
+            {passwordErrors.currentPassword && (
+              <p className="mt-1 text-xs font-medium text-red-500">{passwordErrors.currentPassword.message}</p>
+            )}
+          </div>
+          <div className="grid gap-5 md:grid-cols-2">
+            <div>
+              <label className="mb-1 block text-sm text-gray-700">New Password</label>
+              <input
+                type="password"
+                {...registerPassword('newPassword')}
+                className="w-full rounded-lg border border-gray-200 px-4 py-2.5 text-sm transition-all focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+              />
+              {passwordErrors.newPassword && (
+                <p className="mt-1 text-xs font-medium text-red-500">{passwordErrors.newPassword.message}</p>
+              )}
+            </div>
+            <div>
+              <label className="mb-1 block text-sm text-gray-700">Confirm New Password</label>
+              <input
+                type="password"
+                {...registerPassword('confirmPassword')}
+                className="w-full rounded-lg border border-gray-200 px-4 py-2.5 text-sm transition-all focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+              />
+              {passwordErrors.confirmPassword && (
+                <p className="mt-1 text-xs font-medium text-red-500">{passwordErrors.confirmPassword.message}</p>
+              )}
+            </div>
+          </div>
+          <div className="flex justify-end pt-2">
+            <button
+              type="submit"
+              disabled={!isPasswordDirty || isChangingPassword}
+              className="flex items-center justify-center rounded-xl bg-indigo-600 px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isChangingPassword ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
+              Change Password
+            </button>
+          </div>
+        </form>
+      </div>
+
+      {/* System Settings Section */}
+      <div className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
+        <div className="border-b border-gray-100 bg-gray-50/50 px-6 py-4">
+          <h2 className="font-semibold text-gray-900 flex items-center">
+             <SettingsIcon className="mr-2 h-5 w-5 text-indigo-500" />
+             Story Generation Rules
+          </h2>
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="p-6">
           <div className="grid gap-8 md:grid-cols-2">
             
-            {/* Word Limits Section */}
             <div className="space-y-5">
               <div className="flex items-center text-sm font-medium text-gray-900">
                 <BookOpen className="mr-2 h-4 w-4 text-indigo-500" />
@@ -120,7 +282,6 @@ export default function Settings() {
               </div>
             </div>
 
-            {/* Page Limits Section */}
             <div className="space-y-5">
               <div className="flex items-center text-sm font-medium text-gray-900">
                 <Layers className="mr-2 h-4 w-4 text-indigo-500" />
@@ -143,7 +304,6 @@ export default function Settings() {
             
           </div>
 
-          {/* Pricing Section */}
           <div className="mt-8 border-t border-gray-100 pt-6">
             <div className="mb-4 flex items-center text-sm font-medium text-gray-900">
               <DollarSign className="mr-2 h-4 w-4 text-emerald-500" />
@@ -226,7 +386,7 @@ export default function Settings() {
       
       {/* Toast Notification */}
       {toastMsg && (
-        <div className="fixed bottom-4 right-4 bg-gray-900 text-white px-6 py-3 rounded-lg shadow-xl animate-fade-in-up">
+        <div className="fixed bottom-4 right-4 z-50 bg-gray-900 text-white px-6 py-3 rounded-lg shadow-xl animate-fade-in-up">
           <p className="text-sm font-medium">{toastMsg}</p>
         </div>
       )}
