@@ -57,7 +57,7 @@ const Profile = () => {
     }
 
     try {
-      const res = await changePassword({ oldPassword, newPassword }).unwrap();
+      const res = await changePassword({ currentPassword: oldPassword, newPassword }).unwrap();
       setPasswordMsg({ text: res.message || 'Password changed successfully!', type: 'success' });
       setOldPassword('');
       setNewPassword('');
