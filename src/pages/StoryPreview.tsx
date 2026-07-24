@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { usePreviewStoryQuery, useRegeneratePageIllustrationMutation } from '../store/apiSlice';
-import { Loader2, ChevronLeft, ChevronRight, RefreshCw, Brain } from 'lucide-react';
+import { Loader2, ChevronLeft, ChevronRight, RefreshCw, Brain, Type } from 'lucide-react';
 
 export default function StoryPreview() {
   const { id } = useParams<{ id: string }>();
@@ -19,6 +19,22 @@ export default function StoryPreview() {
       setCurrentParaIndex(0);
     }
   }, [story?.id]);
+
+  // Dynamically load the Google Font for the selected font_style
+  useEffect(() => {
+    if (story?.font_style) {
+      const fontName = story.font_style.replace(/ /g, '+');
+      const linkId = 'story-preview-font';
+      let link = document.getElementById(linkId) as HTMLLinkElement | null;
+      if (!link) {
+        link = document.createElement('link');
+        link.id = linkId;
+        link.rel = 'stylesheet';
+        document.head.appendChild(link);
+      }
+      link.href = `https://fonts.googleapis.com/css2?family=${fontName}&display=swap`;
+    }
+  }, [story?.font_style]);
 
   if (isLoading) {
     return (
@@ -90,6 +106,12 @@ export default function StoryPreview() {
       {/* Title Area */}
       <div className="shrink-0 text-center mb-2 md:mb-4 mt-2">
         <h1 className="text-2xl md:text-4xl font-extrabold text-gray-900 tracking-tight">Preview Your Story</h1>
+        {story?.font_style && (
+          <div className="mt-2 inline-flex items-center gap-1.5 px-3 py-1 bg-purple-50 border border-purple-200 text-purple-700 text-xs font-bold rounded-full">
+            <Type className="w-3.5 h-3.5" />
+            Text Overlay Font: <span className="font-black" style={{ fontFamily: story.font_style }}>{story.font_style}</span>
+          </div>
+        )}
       </div>
 
       {/* Main Book Spread - Flex-1 to fill available vertical space */}
@@ -169,7 +191,10 @@ export default function StoryPreview() {
               <div className="flex-1 flex flex-col justify-center relative px-2 md:px-0">
                 {/* Animated transition between chunks */}
                 <div className="relative w-full">
-                  <p className="font-serif text-xl md:text-3xl text-gray-800 leading-relaxed md:leading-loose animate-[fadeIn_0.5s_ease-out]">
+                  <p
+                    className="text-xl md:text-3xl text-gray-800 leading-relaxed md:leading-loose animate-[fadeIn_0.5s_ease-out]"
+                    style={story?.font_style ? { fontFamily: `'${story.font_style}', serif` } : { fontFamily: 'serif' }}
+                  >
                     {chunks[currentParaIndex]}
                   </p>
                 </div>

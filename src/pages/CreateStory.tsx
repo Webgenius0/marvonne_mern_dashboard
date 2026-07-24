@@ -47,11 +47,23 @@ export default function CreateStory() {
     }
   }, [storyStatus, navigate]);
 
+  const FONT_STYLE_OPTIONS = [
+    { value: '', label: 'No text overlay (image only)' },
+    { value: 'Chewy', label: 'Chewy — Playful & bubbly' },
+    { value: 'Fredoka One', label: 'Fredoka One — Rounded & fun' },
+    { value: 'Baloo 2', label: 'Baloo 2 — Friendly storybook' },
+    { value: 'Patrick Hand', label: 'Patrick Hand — Hand-written' },
+    { value: 'Schoolbell', label: 'Schoolbell — Chalk-board style' },
+    { value: 'Architects Daughter', label: 'Architects Daughter — Sketchy' },
+    { value: 'Comic Neue', label: 'Comic Neue — Comic-book look' },
+  ];
+
   const createStorySchema = useMemo(() => z.object({
     title: z.string().min(1, 'Title is required'),
     description: z.string().min(10, 'Description must be at least 10 characters'),
     age_group: z.string().min(1, 'Age group is required'),
     page_count: z.number().min(1, 'Must have at least 1 page').max(maxPages, `Max ${maxPages} pages`),
+    font_style: z.string().optional(),
   }), [maxPages]);
 
   type CreateStoryForm = z.infer<typeof createStorySchema>;
@@ -76,6 +88,9 @@ export default function CreateStory() {
       formData.append('age_group', data.age_group);
       formData.append('page_count', data.page_count.toString());
       formData.append('create_with_ai', 'true');
+      if (data.font_style) {
+        formData.append('font_style', data.font_style);
+      }
 
       const res = await createStory(formData).unwrap();
       if (res?.data?.id) {
@@ -248,6 +263,31 @@ export default function CreateStory() {
                   />
                   {errors.page_count && <p className="mt-1.5 text-xs text-red-500 font-medium">{errors.page_count.message}</p>}
                 </div>
+              </div>
+
+              {/* Font Style Selector */}
+              <div className="shrink-0 group">
+                <div className="flex justify-between items-end mb-2">
+                  <label className="block text-sm font-bold text-gray-700 group-focus-within:text-indigo-600 transition-colors">
+                    Text Overlay Font Style
+                  </label>
+                  <span className="text-[10px] uppercase font-bold tracking-wider text-purple-500 flex items-center bg-purple-50 px-2 py-0.5 rounded-full">
+                    <Wand2 className="w-3 h-3 mr-1" /> Admin Control
+                  </span>
+                </div>
+                <select
+                  {...register('font_style')}
+                  className="w-full px-4 py-3 bg-gray-50/50 border border-gray-200 rounded-xl focus:bg-white focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 hover:border-gray-300 outline-none transition-all text-sm shadow-sm cursor-pointer appearance-none"
+                >
+                  {FONT_STYLE_OPTIONS.map((opt) => (
+                    <option key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </select>
+                <p className="mt-1.5 text-[11px] text-gray-400 font-medium">
+                  When selected, the page text will be rendered directly onto each illustration using this font.
+                </p>
               </div>
 
               {/* Submit button anchored at the bottom */}
