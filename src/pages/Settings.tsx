@@ -19,11 +19,11 @@ const settingsSchema = z.object({
 
 type SettingsForm = z.infer<typeof settingsSchema>;
 
+
 export default function Settings() {
   const [toastMsg, setToastMsg] = useState('');
   const { data: settingsResponse, isLoading: isFetching } = useGetSettingsQuery({});
   const [updateSettings, { isLoading: isUpdating }] = useUpdateSettingsMutation();
-
   const {
     register,
     handleSubmit,
@@ -32,6 +32,7 @@ export default function Settings() {
   } = useForm<SettingsForm>({
     resolver: zodResolver(settingsSchema),
   });
+
 
   useEffect(() => {
     if (settingsResponse?.data) {
@@ -46,17 +47,21 @@ export default function Settings() {
     }
   }, [settingsResponse, reset]);
 
+  const showToast = (msg: string) => {
+    setToastMsg(msg);
+    setTimeout(() => setToastMsg(''), 3000);
+  };
+
   const onSubmit = async (data: SettingsForm) => {
     try {
       await updateSettings(data).unwrap();
-      setToastMsg("Settings saved successfully!");
-      setTimeout(() => setToastMsg(''), 3000);
+      showToast("Settings saved successfully!");
     } catch (error) {
       console.error('Failed to update settings:', error);
-      setToastMsg("Failed to update settings");
-      setTimeout(() => setToastMsg(''), 3000);
+      showToast("Failed to update settings");
     }
   };
+
 
   if (isFetching) {
     return (
@@ -67,7 +72,8 @@ export default function Settings() {
   }
 
   return (
-    <div className="mx-auto max-w-4xl p-4 md:p-8">
+    <div className="mx-auto max-w-4xl p-4 md:p-8 space-y-8">
+      {/* Header */}
       <div className="bg-gradient-to-r from-[#0a192f] to-[#0f3a4a] p-6 sm:p-10 flex flex-col sm:flex-row items-center justify-between rounded-3xl shadow-xl mb-8">
         <div className="flex items-center space-x-4 mb-4 sm:mb-0">
           <div className="bg-[#bef264]/20 p-3 rounded-2xl">
@@ -75,20 +81,23 @@ export default function Settings() {
           </div>
           <div>
             <h1 className="text-3xl font-extrabold text-white tracking-tight">System Settings</h1>
-            <p className="text-[#bef264] font-medium mt-1">Configure global parameters for AI generation and platform limits.</p>
+            <p className="text-[#bef264] font-medium mt-1">Configure global parameters and account settings.</p>
           </div>
         </div>
       </div>
 
+      {/* System Settings Section */}
       <div className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
         <div className="border-b border-gray-100 bg-gray-50/50 px-6 py-4">
-          <h2 className="font-semibold text-gray-900">Story Generation Rules</h2>
+          <h2 className="font-semibold text-gray-900 flex items-center">
+             <SettingsIcon className="mr-2 h-5 w-5 text-indigo-500" />
+             Story Generation Rules
+          </h2>
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="p-6">
           <div className="grid gap-8 md:grid-cols-2">
             
-            {/* Word Limits Section */}
             <div className="space-y-5">
               <div className="flex items-center text-sm font-medium text-gray-900">
                 <BookOpen className="mr-2 h-4 w-4 text-indigo-500" />
@@ -120,7 +129,6 @@ export default function Settings() {
               </div>
             </div>
 
-            {/* Page Limits Section */}
             <div className="space-y-5">
               <div className="flex items-center text-sm font-medium text-gray-900">
                 <Layers className="mr-2 h-4 w-4 text-indigo-500" />
@@ -143,7 +151,6 @@ export default function Settings() {
             
           </div>
 
-          {/* Pricing Section */}
           <div className="mt-8 border-t border-gray-100 pt-6">
             <div className="mb-4 flex items-center text-sm font-medium text-gray-900">
               <DollarSign className="mr-2 h-4 w-4 text-emerald-500" />
@@ -226,7 +233,7 @@ export default function Settings() {
       
       {/* Toast Notification */}
       {toastMsg && (
-        <div className="fixed bottom-4 right-4 bg-gray-900 text-white px-6 py-3 rounded-lg shadow-xl animate-fade-in-up">
+        <div className="fixed bottom-4 right-4 z-50 bg-gray-900 text-white px-6 py-3 rounded-lg shadow-xl animate-fade-in-up">
           <p className="text-sm font-medium">{toastMsg}</p>
         </div>
       )}

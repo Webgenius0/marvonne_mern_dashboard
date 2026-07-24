@@ -3,10 +3,13 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import type { RootState } from './store';
 import Login from './pages/Login';
+import ForgotPassword from './pages/ForgotPassword';
 import Dashboard from './pages/Dashboard';
 import CreateStory from './pages/CreateStory';
 import StoryPreview from './pages/StoryPreview';
 import Settings from './pages/Settings';
+
+import Profile from './pages/Profile';
 import Users from './pages/Users';
 import Orders from './pages/Orders';
 import CMS from './pages/CMS';
@@ -14,7 +17,7 @@ import FollowUs from './pages/FollowUs';
 import Subscribers from './pages/Subscribers';
 import SeeTheMagicCMS from './pages/SeeTheMagicCMS';
 import HeroCMS from './pages/HeroCMS';
-import { LogOut, BookOpen, PlusCircle, Settings as SettingsIcon, Users as UsersIcon, ShoppingCart, FileText, ChevronDown, HelpCircle, Share2, Mail } from 'lucide-react';
+import { LogOut, BookOpen, PlusCircle, Settings as SettingsIcon, Users as UsersIcon, ShoppingCart, FileText, ChevronDown, HelpCircle, Share2, Mail, User } from 'lucide-react';
 import { useDispatch } from 'react-redux';
 import { logout } from './store/authSlice';
 import { Link, useLocation } from 'react-router-dom';
@@ -188,6 +191,17 @@ const AdminLayout = ({ children }: { children: React.ReactNode }) => {
             <SettingsIcon className="w-5 h-5 mr-3" />
             Settings
           </Link>
+          <Link
+            to="/profile"
+            className={`flex items-center px-4 py-3 text-sm font-semibold rounded-xl transition-all duration-300 ${
+              location.pathname === '/profile'
+                ? 'bg-[#bef264] text-[#0a192f] shadow-[0_0_15px_rgba(190,242,100,0.4)]'
+                : 'text-gray-300 hover:bg-white/10 hover:text-white hover:translate-x-1'
+            }`}
+          >
+            <User className="w-5 h-5 mr-3" />
+            Profile
+          </Link>
         </nav>
         <div className="p-4 border-t border-white/10">
           <button
@@ -276,6 +290,15 @@ const AdminLayout = ({ children }: { children: React.ReactNode }) => {
             <SettingsIcon className="w-5 h-5" />
             <span className="text-[10px] font-semibold">Settings</span>
           </Link>
+          <Link
+            to="/profile"
+            className={`flex flex-col items-center justify-center w-full h-full space-y-1 ${
+              location.pathname === '/profile' ? 'text-[#bef264]' : 'text-gray-400 hover:text-white'
+            }`}
+          >
+            <User className="w-5 h-5" />
+            <span className="text-[10px] font-semibold">Profile</span>
+          </Link>
         </div>
       </main>
     </div>
@@ -286,6 +309,7 @@ function App() {
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route
         path="/"
         element={
@@ -396,6 +420,16 @@ function App() {
           <ProtectedRoute>
             <AdminLayout>
               <StoryPreview />
+            </AdminLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/profile"
+        element={
+          <ProtectedRoute>
+            <AdminLayout>
+              <Profile />
             </AdminLayout>
           </ProtectedRoute>
         }
