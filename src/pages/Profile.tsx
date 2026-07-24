@@ -6,7 +6,7 @@ import {
   useUpdateAdminProfileMutation,
   useChangeAdminPasswordMutation,
 } from '../store/apiSlice';
-import { User, Lock, Mail, Save, Loader2, KeyRound, Shield, CheckCircle2 } from 'lucide-react';
+import { User, Lock, Mail, Save, Loader2, KeyRound, Shield, CheckCircle2, Eye, EyeOff } from 'lucide-react';
 
 const Profile = () => {
   const { user, token } = useSelector((state: RootState) => state.auth);
@@ -17,6 +17,10 @@ const Profile = () => {
   const [oldPassword, setOldPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+
+  const [showOldPassword, setShowOldPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const [profileMsg, setProfileMsg] = useState({ text: '', type: '' });
   const [passwordMsg, setPasswordMsg] = useState({ text: '', type: '' });
@@ -178,13 +182,20 @@ const Profile = () => {
                   <Lock className="h-5 w-5 text-gray-400 group-focus-within:text-rose-500 transition-colors" />
                 </div>
                 <input
-                  type="password"
+                  type={showOldPassword ? "text" : "password"}
                   required
                   value={oldPassword}
                   onChange={(e) => setOldPassword(e.target.value)}
-                  className="pl-11 w-full px-4 py-3 bg-gray-50/50 border border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-rose-500/10 focus:border-rose-500 transition-all font-medium text-gray-900"
+                  className="pl-11 pr-11 w-full px-4 py-3 bg-gray-50/50 border border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-rose-500/10 focus:border-rose-500 transition-all font-medium text-gray-900"
                   placeholder="••••••••"
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowOldPassword(!showOldPassword)}
+                  className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-gray-600 focus:outline-none cursor-pointer"
+                >
+                  {showOldPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                </button>
               </div>
             </div>
 
@@ -195,13 +206,20 @@ const Profile = () => {
                   <KeyRound className="h-5 w-5 text-gray-400 group-focus-within:text-rose-500 transition-colors" />
                 </div>
                 <input
-                  type="password"
+                  type={showNewPassword ? "text" : "password"}
                   required
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
-                  className="pl-11 w-full px-4 py-3 bg-gray-50/50 border border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-rose-500/10 focus:border-rose-500 transition-all font-medium text-gray-900"
+                  className="pl-11 pr-11 w-full px-4 py-3 bg-gray-50/50 border border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-rose-500/10 focus:border-rose-500 transition-all font-medium text-gray-900"
                   placeholder="••••••••"
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowNewPassword(!showNewPassword)}
+                  className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-gray-600 focus:outline-none cursor-pointer"
+                >
+                  {showNewPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                </button>
               </div>
             </div>
 
@@ -212,13 +230,20 @@ const Profile = () => {
                   <KeyRound className="h-5 w-5 text-gray-400 group-focus-within:text-rose-500 transition-colors" />
                 </div>
                 <input
-                  type="password"
+                  type={showConfirmPassword ? "text" : "password"}
                   required
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="pl-11 w-full px-4 py-3 bg-gray-50/50 border border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-rose-500/10 focus:border-rose-500 transition-all font-medium text-gray-900"
+                  className="pl-11 pr-11 w-full px-4 py-3 bg-gray-50/50 border border-gray-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-rose-500/10 focus:border-rose-500 transition-all font-medium text-gray-900"
                   placeholder="••••••••"
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-gray-600 focus:outline-none cursor-pointer"
+                >
+                  {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                </button>
               </div>
             </div>
 
