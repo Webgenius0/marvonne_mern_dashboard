@@ -290,6 +290,15 @@ const AdminLayout = ({ children }: { children: React.ReactNode }) => {
             <SettingsIcon className="w-5 h-5" />
             <span className="text-[10px] font-semibold">Settings</span>
           </Link>
+          <Link
+            to="/profile"
+            className={`flex flex-col items-center justify-center w-full h-full space-y-1 ${
+              location.pathname === '/profile' ? 'text-[#bef264]' : 'text-gray-400 hover:text-white'
+            }`}
+          >
+            <User className="w-5 h-5" />
+            <span className="text-[10px] font-semibold">Profile</span>
+          </Link>
         </div>
       </main>
     </div>
