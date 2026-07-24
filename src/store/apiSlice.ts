@@ -111,9 +111,9 @@ export const apiSlice = createApi({
     }),
     getAllOrders: builder.query({
       query: (args: { page?: number; limit?: number } | void) => {
-        const queryArgs = args as { page?: number; limit?: number } | undefined;
-        const page = queryArgs?.page || 1;
-        const limit = queryArgs?.limit || 10;
+        const argObj = (args || {}) as { page?: number; limit?: number };
+        const page = argObj.page || 1;
+        const limit = argObj.limit || 10;
         return `/orders/admin/all?page=${page}&limit=${limit}`;
       },
       providesTags: ['Order'],
