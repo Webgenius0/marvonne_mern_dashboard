@@ -146,7 +146,7 @@ const Profile = () => {
               <button
                 type="submit"
                 disabled={isUpdatingProfile}
-                className="w-full sm:w-auto flex items-center justify-center space-x-2 px-8 py-3.5 bg-[#0a192f] hover:bg-[#0a192f]/90 text-white font-semibold rounded-xl transition-all disabled:opacity-50 shadow-md hover:shadow-lg active:scale-95"
+                className="w-full sm:w-auto flex items-center justify-center space-x-2 px-8 py-3.5 bg-[#0a192f] hover:bg-[#0a192f]/90 text-white font-semibold rounded-xl transition-all disabled:opacity-50 shadow-md hover:shadow-lg active:scale-95 cursor-pointer disabled:cursor-not-allowed"
               >
                 {isUpdatingProfile ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
                 <span>Save Changes</span>
@@ -251,7 +251,7 @@ const Profile = () => {
               <button
                 type="submit"
                 disabled={isChangingPassword}
-                className="w-full flex items-center justify-center space-x-2 px-8 py-3.5 bg-rose-500 hover:bg-rose-600 text-white font-semibold rounded-xl transition-all disabled:opacity-50 shadow-md hover:shadow-lg active:scale-95"
+                className="w-full flex items-center justify-center space-x-2 px-8 py-3.5 bg-rose-500 hover:bg-rose-600 text-white font-semibold rounded-xl transition-all disabled:opacity-50 shadow-md hover:shadow-lg active:scale-95 cursor-pointer disabled:cursor-not-allowed"
               >
                 {isChangingPassword ? <Loader2 className="w-5 h-5 animate-spin" /> : <Lock className="w-5 h-5" />}
                 <span>Update Password</span>
