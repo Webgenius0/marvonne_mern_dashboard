@@ -27,24 +27,31 @@ interface Order {
 }
 
 const STATUS_CONFIG: Record<string, { label: string; color: string; dot: string }> = {
-  created: { label: "Order Placed", color: "bg-blue-100 text-blue-700", dot: "bg-blue-500" },
-  uploading: { label: "Processing", color: "bg-yellow-100 text-yellow-700", dot: "bg-yellow-500" },
-  passed: { label: "Accepted", color: "bg-indigo-100 text-indigo-700", dot: "bg-indigo-500" },
-  in_production: { label: "In Production", color: "bg-orange-100 text-orange-700", dot: "bg-orange-500" },
-  printed: { label: "Printed ✓", color: "bg-teal-100 text-teal-700", dot: "bg-teal-500" },
-  shipped: { label: "Shipped 🚚", color: "bg-purple-100 text-purple-700", dot: "bg-purple-500" },
-  in_transit: { label: "In Transit", color: "bg-purple-100 text-purple-700", dot: "bg-purple-400" },
-  delivered: { label: "Delivered", color: "bg-green-100 text-green-700", dot: "bg-green-500" },
-  failed: { label: "Failed", color: "bg-red-100 text-red-700", dot: "bg-red-500" },
-  canceled: { label: "Canceled", color: "bg-gray-100 text-gray-500", dot: "bg-gray-400" },
+  created: { label: "Placed", color: "bg-blue-50 text-blue-600 border border-blue-200", dot: "bg-blue-500" },
+  uploading: { label: "Processing", color: "bg-yellow-50 text-yellow-600 border border-yellow-200", dot: "bg-yellow-500" },
+  passed: { label: "Accepted", color: "bg-indigo-50 text-indigo-600 border border-indigo-200", dot: "bg-indigo-500" },
+  in_production: { label: "Producing", color: "bg-orange-50 text-orange-600 border border-orange-200", dot: "bg-orange-500" },
+  printed: { label: "Printed", color: "bg-teal-50 text-teal-600 border border-teal-200", dot: "bg-teal-500" },
+  shipped: { label: "Shipped", color: "bg-purple-50 text-purple-600 border border-purple-200", dot: "bg-purple-500" },
+  in_transit: { label: "In Transit", color: "bg-purple-50 text-purple-600 border border-purple-200", dot: "bg-purple-400" },
+  delivered: { label: "Delivered", color: "bg-emerald-50 text-emerald-600 border border-emerald-200", dot: "bg-emerald-500" },
+  failed: { label: "Failed", color: "bg-red-50 text-red-600 border border-red-200", dot: "bg-red-500" },
+  canceled: { label: "Canceled", color: "bg-gray-50 text-gray-500 border border-gray-200", dot: "bg-gray-400" },
 };
 
 function FulfillmentBadge({ status }: { status: string | null }) {
-  if (!status) return null;
-  const cfg = STATUS_CONFIG[status.toLowerCase()] ?? { label: status.replace(/_/g, ' '), color: "bg-gray-100 text-gray-600", dot: "bg-gray-400" };
+  if (!status) {
+    return (
+      <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[10px] font-bold uppercase whitespace-nowrap bg-gray-50 text-gray-400 border border-gray-200">
+        <span className="w-1 h-1 rounded-full bg-gray-300" />
+        Pending
+      </span>
+    );
+  }
+  const cfg = STATUS_CONFIG[status.toLowerCase()] ?? { label: status.replace(/_/g, ' '), color: "bg-gray-50 text-gray-600 border border-gray-200", dot: "bg-gray-400" };
   return (
-    <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase ${cfg.color}`}>
-      <span className={`w-1.5 h-1.5 rounded-full ${cfg.dot}`} />
+    <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[10px] font-bold uppercase whitespace-nowrap ${cfg.color}`}>
+      <span className={`w-1 h-1 rounded-full ${cfg.dot}`} />
       {cfg.label}
     </span>
   );
@@ -178,21 +185,27 @@ const Orders = () => {
                       ${order.total_amount?.toFixed(2)}
                     </td>
                     <td className="px-6 py-4">
-                      <div className="flex flex-col items-start gap-2">
-                        <span
-                          className={`w-fit inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase ${
-                            order.status === 'COMPLETED'
-                              ? 'bg-green-100 text-green-700'
-                              : order.status === 'PENDING_PAYMENT'
-                              ? 'bg-yellow-100 text-yellow-700'
-                              : 'bg-gray-100 text-gray-700'
-                          }`}
-                        >
-                          <span className={`w-1.5 h-1.5 rounded-full ${order.status === 'COMPLETED' ? 'bg-green-500' : order.status === 'PENDING_PAYMENT' ? 'bg-yellow-500' : 'bg-gray-500'}`} />
-                          {order.status === 'COMPLETED' ? 'Payment Completed' : order.status.replace(/_/g, ' ')}
-                        </span>
+                      <div className="flex flex-col gap-2 min-w-[160px]">
+                        <div className="flex items-center justify-between gap-4">
+                          <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Payment</span>
+                          <span
+                            className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[10px] font-bold uppercase whitespace-nowrap ${
+                              order.status === 'COMPLETED'
+                                ? 'bg-emerald-50 text-emerald-600 border border-emerald-200'
+                                : order.status === 'PENDING_PAYMENT'
+                                ? 'bg-amber-50 text-amber-600 border border-amber-200'
+                                : 'bg-gray-50 text-gray-600 border border-gray-200'
+                            }`}
+                          >
+                            <span className={`w-1 h-1 rounded-full ${order.status === 'COMPLETED' ? 'bg-emerald-500' : order.status === 'PENDING_PAYMENT' ? 'bg-amber-500' : 'bg-gray-500'}`} />
+                            {order.status === 'COMPLETED' ? 'Completed' : order.status.replace(/_/g, ' ')}
+                          </span>
+                        </div>
                         
-                        <FulfillmentBadge status={order.fulfillment_status} />
+                        <div className="flex items-center justify-between gap-4">
+                          <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Fulfillment</span>
+                          <FulfillmentBadge status={order.fulfillment_status} />
+                        </div>
                       </div>
                     </td>
                     <td className="px-6 py-4 text-gray-500 font-medium whitespace-nowrap">
