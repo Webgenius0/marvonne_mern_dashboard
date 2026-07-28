@@ -141,12 +141,12 @@ const Orders = () => {
           <table className="w-full text-sm text-left">
             <thead className="bg-gray-50/50 text-gray-600 font-semibold uppercase text-xs tracking-wider border-b border-gray-100">
               <tr>
-                <th className="px-6 py-4 rounded-tl-xl">Order ID</th>
-                <th className="px-6 py-4">User</th>
-                <th className="px-6 py-4">Items / Book</th>
-                <th className="px-6 py-4">Amount</th>
-                <th className="px-6 py-4">Status</th>
-                <th className="px-6 py-4 rounded-tr-xl">Date</th>
+                <th className="px-6 py-4 rounded-tl-xl whitespace-nowrap">Order ID</th>
+                <th className="px-6 py-4 whitespace-nowrap">User</th>
+                <th className="px-6 py-4 whitespace-nowrap">Items / Book</th>
+                <th className="px-6 py-4 whitespace-nowrap">Amount</th>
+                <th className="px-6 py-4 whitespace-nowrap">Status</th>
+                <th className="px-6 py-4 rounded-tr-xl whitespace-nowrap">Date</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100 bg-white">
@@ -181,27 +181,26 @@ const Orders = () => {
                         </div>
                       ))}
                     </td>
-                    <td className="px-6 py-4 font-bold text-[#0a192f]">
+                    <td className="px-6 py-4 font-bold text-[#0a192f] whitespace-nowrap">
                       ${order.total_amount?.toFixed(2)}
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex flex-col gap-2 min-w-[160px]">
                         <div className="flex items-center justify-between gap-4">
                           <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Payment</span>
                           <span
-                            className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[10px] font-bold uppercase whitespace-nowrap ${
-                              order.status === 'COMPLETED'
+                            className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[10px] font-bold uppercase whitespace-nowrap ${order.status === 'COMPLETED'
                                 ? 'bg-emerald-50 text-emerald-600 border border-emerald-200'
                                 : order.status === 'PENDING_PAYMENT'
-                                ? 'bg-amber-50 text-amber-600 border border-amber-200'
-                                : 'bg-gray-50 text-gray-600 border border-gray-200'
-                            }`}
+                                  ? 'bg-amber-50 text-amber-600 border border-amber-200'
+                                  : 'bg-gray-50 text-gray-600 border border-gray-200'
+                              }`}
                           >
                             <span className={`w-1 h-1 rounded-full ${order.status === 'COMPLETED' ? 'bg-emerald-500' : order.status === 'PENDING_PAYMENT' ? 'bg-amber-500' : 'bg-gray-500'}`} />
                             {order.status === 'COMPLETED' ? 'Completed' : order.status.replace(/_/g, ' ')}
                           </span>
                         </div>
-                        
+
                         <div className="flex items-center justify-between gap-4">
                           <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Fulfillment</span>
                           <FulfillmentBadge status={order.fulfillment_status} />
