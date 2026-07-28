@@ -118,18 +118,41 @@ const Profile = () => {
             </div>
           )}
 
-          <div className="space-y-6">
-            <div className="space-y-1.5">
-              <label className="block text-sm font-semibold text-gray-700">Full Name</label>
-              <div className="px-4 py-3 bg-gray-50/50 border border-gray-200 rounded-xl text-gray-900 font-medium">
-                {user?.name}
+          <div className="flex flex-col sm:flex-row gap-8 items-start pt-2">
+            <div className="flex flex-col items-center mx-auto sm:mx-0">
+              <div className="relative h-28 w-28 rounded-full bg-gradient-to-b from-[#0a192f] to-[#112240] p-1 shadow-lg shadow-[#0a192f]/10">
+                <div className="h-full w-full rounded-full border-4 border-white flex items-center justify-center bg-[#0a192f]">
+                  <span className="text-4xl font-bold text-[#bef264]">
+                    {user?.name?.charAt(0)?.toUpperCase() || 'A'}
+                  </span>
+                </div>
+                <div className="absolute bottom-1 right-1 h-6 w-6 bg-green-500 border-[3px] border-white rounded-full shadow-sm" title="Active Account"></div>
+              </div>
+              <div className="mt-4 px-4 py-1.5 bg-gray-50 border border-gray-200 rounded-full text-xs font-bold text-gray-600 tracking-widest uppercase flex items-center space-x-1.5 shadow-sm">
+                <Shield className="w-3.5 h-3.5 text-indigo-500" />
+                <span>Administrator</span>
               </div>
             </div>
-
-            <div className="space-y-1.5">
-              <label className="block text-sm font-semibold text-gray-700">Email Address</label>
-              <div className="px-4 py-3 bg-gray-50/50 border border-gray-200 rounded-xl text-gray-900 font-medium">
-                {user?.email}
+            
+            <div className="flex-1 w-full space-y-6 sm:pt-4">
+              <div className="group">
+                <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5 flex items-center space-x-2">
+                  <User className="w-4 h-4" />
+                  <span>Full Name</span>
+                </h4>
+                <div className="text-gray-900 font-semibold text-lg pb-3 border-b border-gray-100 group-hover:border-gray-200 transition-colors">
+                  {user?.name || 'Admin User'}
+                </div>
+              </div>
+              
+              <div className="group">
+                <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5 flex items-center space-x-2">
+                  <Mail className="w-4 h-4" />
+                  <span>Email Address</span>
+                </h4>
+                <div className="text-gray-900 font-semibold text-lg pb-3 border-b border-gray-100 group-hover:border-gray-200 transition-colors">
+                  {user?.email || 'admin@example.com'}
+                </div>
               </div>
             </div>
           </div>
