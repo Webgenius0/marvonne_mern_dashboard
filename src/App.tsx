@@ -12,12 +12,13 @@ import Settings from './pages/Settings';
 import Profile from './pages/Profile';
 import Users from './pages/Users';
 import Orders from './pages/Orders';
+import Illustrations from './pages/Illustrations';
 import CMS from './pages/CMS';
 import FollowUs from './pages/FollowUs';
 import Subscribers from './pages/Subscribers';
 import SeeTheMagicCMS from './pages/SeeTheMagicCMS';
 import HeroCMS from './pages/HeroCMS';
-import { LogOut, BookOpen, PlusCircle, Settings as SettingsIcon, Users as UsersIcon, ShoppingCart, FileText, ChevronDown, HelpCircle, Share2, Mail, User } from 'lucide-react';
+import { LogOut, BookOpen, PlusCircle, Settings as SettingsIcon, Users as UsersIcon, ShoppingCart, FileText, ChevronDown, HelpCircle, Share2, Mail, User, Image as ImageIcon } from 'lucide-react';
 import { useDispatch } from 'react-redux';
 import { logout } from './store/authSlice';
 import { Link, useLocation } from 'react-router-dom';
@@ -110,6 +111,17 @@ const AdminLayout = ({ children }: { children: React.ReactNode }) => {
           >
             <Mail className="w-5 h-5 mr-3" />
             Subscribers
+          </Link>
+          <Link
+            to="/illustrations"
+            className={`flex items-center px-4 py-3 text-sm font-semibold rounded-xl transition-all duration-300 ${
+              location.pathname === '/illustrations'
+                ? 'bg-[#bef264] text-[#0a192f] shadow-[0_0_15px_rgba(190,242,100,0.4)]'
+                : 'text-gray-300 hover:bg-white/10 hover:text-white hover:translate-x-1'
+            }`}
+          >
+            <ImageIcon className="w-5 h-5 mr-3" />
+            Illustrations
           </Link>
           <div className="space-y-1">
             <button
@@ -282,6 +294,15 @@ const AdminLayout = ({ children }: { children: React.ReactNode }) => {
             <span className="text-[10px] font-semibold">CMS</span>
           </Link>
           <Link
+            to="/illustrations"
+            className={`flex flex-col items-center justify-center w-full h-full space-y-1 ${
+              location.pathname === '/illustrations' ? 'text-[#bef264]' : 'text-gray-400 hover:text-white'
+            }`}
+          >
+            <ImageIcon className="w-5 h-5" />
+            <span className="text-[10px] font-semibold">Styles</span>
+          </Link>
+          <Link
             to="/settings"
             className={`flex flex-col items-center justify-center w-full h-full space-y-1 ${
               location.pathname === '/settings' ? 'text-[#bef264]' : 'text-gray-400 hover:text-white'
@@ -346,6 +367,16 @@ function App() {
           <ProtectedRoute>
             <AdminLayout>
               <Orders />
+            </AdminLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/illustrations"
+        element={
+          <ProtectedRoute>
+            <AdminLayout>
+              <Illustrations />
             </AdminLayout>
           </ProtectedRoute>
         }

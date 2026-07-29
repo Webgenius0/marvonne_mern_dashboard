@@ -232,6 +232,13 @@ export const apiSlice = createApi({
       }),
       invalidatesTags: ['Illustration'],
     }),
+    generateIllustrationByAI: builder.mutation({
+      query: (data) => ({
+        url: '/illustrations/generate',
+        method: 'POST',
+        body: data,
+      }),
+    }),
     updateIllustration: builder.mutation({
       query: ({ id, data }) => ({
         url: `/illustrations/${id}`,
@@ -284,6 +291,7 @@ export const {
   useVerifyPasswordResetMutation,
   useGetAllIllustrationsQuery,
   useCreateIllustrationMutation,
+  useGenerateIllustrationByAIMutation,
   useUpdateIllustrationMutation,
   useDeleteIllustrationMutation,
 } = apiSlice;
