@@ -12,7 +12,7 @@ export const apiSlice = createApi({
       return headers;
     },
   }),
-  tagTypes: ['Story', 'Auth', 'Settings', 'User', 'Order', 'Faq', 'FollowUs', 'Subscriber', 'SeeTheMagic', 'HeroCms'],
+  tagTypes: ['Story', 'Auth', 'Settings', 'User', 'Order', 'Faq', 'FollowUs', 'Subscriber', 'SeeTheMagic', 'HeroCms', 'Illustration'],
   endpoints: (builder) => ({
     login: builder.mutation({
       query: (credentials) => ({
@@ -220,6 +220,33 @@ export const apiSlice = createApi({
         body: data,
       }),
     }),
+    getAllIllustrations: builder.query({
+      query: () => '/illustrations',
+      providesTags: ['Illustration'],
+    }),
+    createIllustration: builder.mutation({
+      query: (data) => ({
+        url: '/illustrations',
+        method: 'POST',
+        body: data,
+      }),
+      invalidatesTags: ['Illustration'],
+    }),
+    updateIllustration: builder.mutation({
+      query: ({ id, data }) => ({
+        url: `/illustrations/${id}`,
+        method: 'PUT',
+        body: data,
+      }),
+      invalidatesTags: ['Illustration'],
+    }),
+    deleteIllustration: builder.mutation({
+      query: (id) => ({
+        url: `/illustrations/${id}`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: ['Illustration'],
+    }),
   }),
 });
 
@@ -255,4 +282,8 @@ export const {
   useChangeAdminPasswordMutation,
   useRequestPasswordOtpMutation,
   useVerifyPasswordResetMutation,
+  useGetAllIllustrationsQuery,
+  useCreateIllustrationMutation,
+  useUpdateIllustrationMutation,
+  useDeleteIllustrationMutation,
 } = apiSlice;
