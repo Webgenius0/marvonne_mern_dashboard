@@ -20,6 +20,7 @@ export default function Illustrations() {
   const [editingId, setEditingId] = useState<string | null>(null);
   
   const [title, setTitle] = useState('');
+  const [illustrationPrompt, setIllustrationPrompt] = useState('');
   const [isActive, setIsActive] = useState(true);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string>('');
@@ -32,12 +33,14 @@ export default function Illustrations() {
     if (illustration) {
       setEditingId(illustration.id);
       setTitle(illustration.title);
+      setIllustrationPrompt(illustration.illustration_prompt || '');
       setIsActive(illustration.is_active);
       setPreviewUrl(illustration.image_url);
       setImageFile(null);
     } else {
       setEditingId(null);
       setTitle('');
+      setIllustrationPrompt('');
       setIsActive(true);
       setPreviewUrl('');
       setImageFile(null);
@@ -82,6 +85,7 @@ export default function Illustrations() {
     setIsSubmitting(true);
     const formData = new FormData();
     formData.append('title', title);
+    formData.append('illustration_prompt', illustrationPrompt);
     formData.append('is_active', String(isActive));
     
     if (imageFile) {
@@ -217,6 +221,21 @@ export default function Illustrations() {
                   className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#3CCFBD]/20 focus:border-[#3CCFBD] transition-all"
                   placeholder="e.g. Water Color, Anime, 3D Render..."
                 />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">AI Illustration Prompt (System Instructions)</label>
+                <textarea
+                  required
+                  value={illustrationPrompt}
+                  onChange={(e) => setIllustrationPrompt(e.target.value)}
+                  rows={3}
+                  className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#3CCFBD]/20 focus:border-[#3CCFBD] transition-all"
+                  placeholder="e.g. A charming crayon drawing. Textured waxy strokes..."
+                />
+                <p className="mt-1 text-xs text-gray-500">
+                  This detailed prompt is sent to the AI image generator when users select this style.
+                </p>
               </div>
 
               <div>
