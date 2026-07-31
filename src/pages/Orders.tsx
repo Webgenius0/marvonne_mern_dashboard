@@ -26,6 +26,37 @@ interface Order {
   created_at: string;
 }
 
+const STATUS_CONFIG: Record<string, { label: string; color: string; dot: string }> = {
+  created: { label: "Placed", color: "bg-blue-50 text-blue-600 border border-blue-200", dot: "bg-blue-500" },
+  uploading: { label: "Processing", color: "bg-yellow-50 text-yellow-600 border border-yellow-200", dot: "bg-yellow-500" },
+  passed: { label: "Accepted", color: "bg-indigo-50 text-indigo-600 border border-indigo-200", dot: "bg-indigo-500" },
+  in_production: { label: "Producing", color: "bg-orange-50 text-orange-600 border border-orange-200", dot: "bg-orange-500" },
+  printed: { label: "Printed", color: "bg-teal-50 text-teal-600 border border-teal-200", dot: "bg-teal-500" },
+  shipped: { label: "Shipped", color: "bg-purple-50 text-purple-600 border border-purple-200", dot: "bg-purple-500" },
+  in_transit: { label: "In Transit", color: "bg-purple-50 text-purple-600 border border-purple-200", dot: "bg-purple-400" },
+  delivered: { label: "Delivered", color: "bg-emerald-50 text-emerald-600 border border-emerald-200", dot: "bg-emerald-500" },
+  failed: { label: "Failed", color: "bg-red-50 text-red-600 border border-red-200", dot: "bg-red-500" },
+  canceled: { label: "Canceled", color: "bg-gray-50 text-gray-500 border border-gray-200", dot: "bg-gray-400" },
+};
+
+function FulfillmentBadge({ status }: { status: string | null }) {
+  if (!status) {
+    return (
+      <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[10px] font-bold uppercase whitespace-nowrap bg-gray-50 text-gray-400 border border-gray-200">
+        <span className="w-1 h-1 rounded-full bg-gray-300" />
+        Pending
+      </span>
+    );
+  }
+  const cfg = STATUS_CONFIG[status.toLowerCase()] ?? { label: status.replace(/_/g, ' '), color: "bg-gray-50 text-gray-600 border border-gray-200", dot: "bg-gray-400" };
+  return (
+    <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[10px] font-bold uppercase whitespace-nowrap ${cfg.color}`}>
+      <span className={`w-1 h-1 rounded-full ${cfg.dot}`} />
+      {cfg.label}
+    </span>
+  );
+}
+
 const Orders = () => {
   const [page, setPage] = useState(1);
   const limit = 10;
@@ -110,12 +141,12 @@ const Orders = () => {
           <table className="w-full text-sm text-left">
             <thead className="bg-gray-50/50 text-gray-600 font-semibold uppercase text-xs tracking-wider border-b border-gray-100">
               <tr>
-                <th className="px-6 py-4 rounded-tl-xl">Order ID</th>
-                <th className="px-6 py-4">User</th>
-                <th className="px-6 py-4">Items / Book</th>
-                <th className="px-6 py-4">Amount</th>
-                <th className="px-6 py-4">Status</th>
-                <th className="px-6 py-4 rounded-tr-xl">Date</th>
+                <th className="px-6 py-4 rounded-tl-xl whitespace-nowrap">Order ID</th>
+                <th className="px-6 py-4 whitespace-nowrap">User</th>
+                <th className="px-6 py-4 whitespace-nowrap">Items / Book</th>
+                <th className="px-6 py-4 whitespace-nowrap">Amount</th>
+                <th className="px-6 py-4 whitespace-nowrap">Status</th>
+                <th className="px-6 py-4 rounded-tr-xl whitespace-nowrap">Date</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100 bg-white">
@@ -150,27 +181,30 @@ const Orders = () => {
                         </div>
                       ))}
                     </td>
-                    <td className="px-6 py-4 font-bold text-[#0a192f]">
+                    <td className="px-6 py-4 font-bold text-[#0a192f] whitespace-nowrap">
                       ${order.total_amount?.toFixed(2)}
                     </td>
-                    <td className="px-6 py-4">
-                      <div className="flex flex-col gap-2">
-                        <span
-                          className={`w-fit px-3 py-1 rounded-full text-xs font-bold ${
-                            order.status === 'COMPLETED'
-                              ? 'bg-green-100 text-green-700'
-                              : order.status === 'PENDING_PAYMENT'
-                              ? 'bg-yellow-100 text-yellow-700'
-                              : 'bg-gray-100 text-gray-700'
-                          }`}
-                        >
-                          {order.status}
-                        </span>
-                        {order.fulfillment_status && (
-                          <span className="w-fit px-3 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-700 uppercase">
-                            {order.fulfillment_status.replace(/_/g, ' ')}
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex flex-col gap-2 min-w-[160px]">
+                        <div className="flex items-center justify-between gap-4">
+                          <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Payment</span>
+                          <span
+                            className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[10px] font-bold uppercase whitespace-nowrap ${order.status === 'COMPLETED'
+                                ? 'bg-emerald-50 text-emerald-600 border border-emerald-200'
+                                : order.status === 'PENDING_PAYMENT'
+                                  ? 'bg-amber-50 text-amber-600 border border-amber-200'
+                                  : 'bg-gray-50 text-gray-600 border border-gray-200'
+                              }`}
+                          >
+                            <span className={`w-1 h-1 rounded-full ${order.status === 'COMPLETED' ? 'bg-emerald-500' : order.status === 'PENDING_PAYMENT' ? 'bg-amber-500' : 'bg-gray-500'}`} />
+                            {order.status === 'COMPLETED' ? 'Completed' : order.status.replace(/_/g, ' ')}
                           </span>
-                        )}
+                        </div>
+
+                        <div className="flex items-center justify-between gap-4">
+                          <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Fulfillment</span>
+                          <FulfillmentBadge status={order.fulfillment_status} />
+                        </div>
                       </div>
                     </td>
                     <td className="px-6 py-4 text-gray-500 font-medium whitespace-nowrap">
