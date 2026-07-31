@@ -39,7 +39,7 @@ const STATUS_CONFIG: Record<string, { label: string; color: string; dot: string 
   canceled: { label: "Canceled", color: "bg-gray-50 text-gray-500 border border-gray-200", dot: "bg-gray-400" },
 };
 
-function FulfillmentBadge({ status }: { status: string | null }) {
+function FulfillmentBadge({ status }: { status?: string | null }) {
   if (!status) {
     return (
       <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[10px] font-bold uppercase whitespace-nowrap bg-gray-50 text-gray-400 border border-gray-200">
