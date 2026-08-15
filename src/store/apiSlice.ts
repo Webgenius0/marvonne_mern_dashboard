@@ -78,7 +78,7 @@ export const apiSlice = createApi({
         method: 'POST',
         body: formData,
       }),
-      invalidatesTags: (result, error, { storyId }) => [{ type: 'Story', id: storyId }],
+      invalidatesTags: (_result, _error, { storyId }) => [{ type: 'Story', id: storyId }],
     }),
     regenerateCoverImage: builder.mutation({
       query: ({ storyId, customPrompt }) => ({
@@ -86,7 +86,7 @@ export const apiSlice = createApi({
         method: 'PUT',
         body: { customPrompt },
       }),
-      invalidatesTags: (result, error, { storyId }) => [{ type: 'Story', id: storyId }],
+      invalidatesTags: (_result, _error, { storyId }) => [{ type: 'Story', id: storyId }],
     }),
     deleteStory: builder.mutation({
       query: (storyId) => ({
