@@ -239,8 +239,8 @@ export default function StoryPreview() {
                 setCurrentParaIndex(0);
               }}
               className={`relative flex-shrink-0 w-24 h-16 md:w-40 md:h-24 rounded bg-white shadow-md overflow-hidden transition-all snap-center group ${currentPageIndex === index
-                  ? 'ring-2 md:ring-4 ring-[#0d9488] ring-offset-2 scale-105 z-10'
-                  : 'hover:ring-2 hover:ring-[#34d399] opacity-70 hover:opacity-100'
+                ? 'ring-2 md:ring-4 ring-[#0d9488] ring-offset-2 scale-105 z-10'
+                : 'hover:ring-2 hover:ring-[#34d399] opacity-70 hover:opacity-100'
                 }`}
             >
               <div className="absolute inset-0 p-1.5 md:p-3 flex flex-col">
@@ -281,17 +281,17 @@ export default function StoryPreview() {
                   <p className="text-xs text-slate-500 font-medium">Guide the AI with prompts or reference art</p>
                 </div>
               </div>
-              <button 
+              <button
                 onClick={() => setShowRegenerateModal(false)}
                 className="text-slate-400 hover:text-slate-600 hover:bg-white p-1.5 rounded-full transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
-            
+
             {/* Modal Body */}
             <div className="p-6 flex flex-col gap-5">
-              
+
               {/* Prompt Input */}
               <div className="space-y-1.5">
                 <label className="flex items-center text-sm font-bold text-slate-700">
@@ -306,7 +306,7 @@ export default function StoryPreview() {
                   rows={3}
                 />
               </div>
-              
+
               {/* Reference Image Upload */}
               <div className="space-y-1.5">
                 <label className="flex items-center text-sm font-bold text-slate-700">
@@ -314,7 +314,7 @@ export default function StoryPreview() {
                   Reference Image
                   <span className="ml-2 text-xs font-normal text-slate-400">(Optional)</span>
                 </label>
-                
+
                 {!referenceImage ? (
                   <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-slate-200 border-dashed rounded-xl cursor-pointer bg-slate-50 hover:bg-slate-100 hover:border-teal-400 transition-colors group">
                     <div className="flex flex-col items-center justify-center pt-5 pb-6">
@@ -322,10 +322,10 @@ export default function StoryPreview() {
                       <p className="text-sm font-semibold text-slate-600 group-hover:text-teal-600 transition-colors">Click to upload an image</p>
                       <p className="text-xs text-slate-400 mt-1">PNG, JPG or WEBP</p>
                     </div>
-                    <input 
-                      type="file" 
-                      accept="image/*" 
-                      className="hidden" 
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
                       onChange={(e) => setReferenceImage(e.target.files?.[0] || null)}
                     />
                   </label>
