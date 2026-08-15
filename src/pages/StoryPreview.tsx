@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { usePreviewStoryQuery, useRegeneratePageIllustrationMutation } from '../store/apiSlice';
-import { Loader2, ChevronLeft, ChevronRight, RefreshCw, Brain, Type } from 'lucide-react';
+import { Loader2, ChevronLeft, ChevronRight, RefreshCw, Brain, Type, Wand2, Image as ImageIcon, Sparkles, X, UploadCloud } from 'lucide-react';
 
 export default function StoryPreview() {
   const { id } = useParams<{ id: string }>();
@@ -11,6 +11,10 @@ export default function StoryPreview() {
   const [currentPageIndex, setCurrentPageIndex] = useState(0);
   const [currentParaIndex, setCurrentParaIndex] = useState(0);
   const [regenerateImage, { isLoading: isRegenerating }] = useRegeneratePageIllustrationMutation();
+
+  const [showRegenerateModal, setShowRegenerateModal] = useState(false);
+  const [customPrompt, setCustomPrompt] = useState("");
+  const [referenceImage, setReferenceImage] = useState<File | null>(null);
 
   // If story data changes, reset to page 0
   useEffect(() => {
@@ -94,7 +98,14 @@ export default function StoryPreview() {
 
   const handleRegenerateImage = async () => {
     try {
-      await regenerateImage(currentPage.id).unwrap();
+      const formData = new FormData();
+      if (customPrompt) formData.append("customPrompt", customPrompt);
+      if (referenceImage) formData.append("reference_image", referenceImage);
+
+      await regenerateImage({ pageId: currentPage.id, storyId: story?.id, formData }).unwrap();
+      setShowRegenerateModal(false);
+      setCustomPrompt("");
+      setReferenceImage(null);
     } catch (err: any) {
       alert(err?.data?.message || err?.message || 'Failed to regenerate image');
     }
@@ -162,7 +173,7 @@ export default function StoryPreview() {
             {/* Update Illustration Button */}
             {!isRegenerating && (
               <button
-                onClick={handleRegenerateImage}
+                onClick={() => setShowRegenerateModal(true)}
                 className="absolute bottom-4 left-4 z-30 flex items-center px-4 py-2 bg-black/60 hover:bg-black/80 backdrop-blur-md text-white text-xs md:text-sm font-bold rounded-full transition-all opacity-0 md:group-hover:opacity-100 md:opacity-0 shadow-lg"
                 style={{ opacity: window.innerWidth < 768 ? 1 : undefined }} // Always show on mobile, hover on desktop
               >
@@ -256,6 +267,118 @@ export default function StoryPreview() {
         </div>
       </div>
 
+      {showRegenerateModal && (
+        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
+          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden flex flex-col border border-white/20 transform transition-all animate-in zoom-in-95 duration-200">
+            {/* Modal Header */}
+            <div className="bg-gradient-to-r from-teal-50 to-emerald-50 px-6 py-5 border-b border-teal-100 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-white rounded-xl shadow-sm text-teal-600">
+                  <Wand2 className="w-5 h-5" />
+                </div>
+                <div>
+                  <h2 className="text-xl font-extrabold text-slate-800 tracking-tight">AI Illustration Studio</h2>
+                  <p className="text-xs text-slate-500 font-medium">Guide the AI with prompts or reference art</p>
+                </div>
+              </div>
+              <button 
+                onClick={() => setShowRegenerateModal(false)}
+                className="text-slate-400 hover:text-slate-600 hover:bg-white p-1.5 rounded-full transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            
+            {/* Modal Body */}
+            <div className="p-6 flex flex-col gap-5">
+              
+              {/* Prompt Input */}
+              <div className="space-y-1.5">
+                <label className="flex items-center text-sm font-bold text-slate-700">
+                  <Sparkles className="w-4 h-4 mr-1.5 text-amber-500" />
+                  Custom Prompt
+                </label>
+                <textarea
+                  value={customPrompt}
+                  onChange={(e) => setCustomPrompt(e.target.value)}
+                  placeholder="E.g., A rainy day, darker mood, focus on the tree..."
+                  className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl resize-none text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 focus:bg-white transition-all text-sm leading-relaxed"
+                  rows={3}
+                />
+              </div>
+              
+              {/* Reference Image Upload */}
+              <div className="space-y-1.5">
+                <label className="flex items-center text-sm font-bold text-slate-700">
+                  <ImageIcon className="w-4 h-4 mr-1.5 text-blue-500" />
+                  Reference Image
+                  <span className="ml-2 text-xs font-normal text-slate-400">(Optional)</span>
+                </label>
+                
+                {!referenceImage ? (
+                  <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-slate-200 border-dashed rounded-xl cursor-pointer bg-slate-50 hover:bg-slate-100 hover:border-teal-400 transition-colors group">
+                    <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                      <UploadCloud className="w-8 h-8 mb-2 text-slate-400 group-hover:text-teal-500 transition-colors" />
+                      <p className="text-sm font-semibold text-slate-600 group-hover:text-teal-600 transition-colors">Click to upload an image</p>
+                      <p className="text-xs text-slate-400 mt-1">PNG, JPG or WEBP</p>
+                    </div>
+                    <input 
+                      type="file" 
+                      accept="image/*" 
+                      className="hidden" 
+                      onChange={(e) => setReferenceImage(e.target.files?.[0] || null)}
+                    />
+                  </label>
+                ) : (
+                  <div className="relative w-full h-40 rounded-xl overflow-hidden border border-slate-200 group bg-slate-100">
+                    <img
+                      src={URL.createObjectURL(referenceImage)}
+                      alt="Reference preview"
+                      className="w-full h-full object-contain"
+                    />
+                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                      <button
+                        onClick={() => setReferenceImage(null)}
+                        className="px-4 py-2 bg-white/90 hover:bg-white text-red-600 font-bold text-sm rounded-lg shadow-lg flex items-center transition-transform hover:scale-105"
+                      >
+                        <X className="w-4 h-4 mr-1" />
+                        Remove Image
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="bg-slate-50 px-6 py-4 border-t border-slate-100 flex justify-end gap-3 rounded-b-3xl">
+              <button
+                onClick={() => setShowRegenerateModal(false)}
+                className="px-5 py-2.5 text-slate-600 hover:bg-slate-200 hover:text-slate-800 rounded-xl font-semibold transition-colors text-sm"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleRegenerateImage}
+                disabled={isRegenerating}
+                className="px-6 py-2.5 bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-500 hover:to-emerald-500 text-white rounded-xl font-bold shadow-md shadow-teal-500/20 disabled:opacity-60 disabled:cursor-not-allowed flex items-center transition-all hover:-translate-y-0.5 text-sm"
+              >
+                {isRegenerating ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Generating...
+                  </>
+                ) : (
+                  <>
+                    <Wand2 className="w-4 h-4 mr-2" />
+                    Regenerate Magic
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

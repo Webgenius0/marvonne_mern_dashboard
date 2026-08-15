@@ -73,11 +73,12 @@ export const apiSlice = createApi({
       invalidatesTags: ['Story'],
     }),
     regeneratePageIllustration: builder.mutation({
-      query: (pageId) => ({
+      query: ({ pageId, formData }) => ({
         url: `/story/page/${pageId}/regenerate-image`,
         method: 'POST',
+        body: formData,
       }),
-      invalidatesTags: ['Story'],
+      invalidatesTags: (result, error, { storyId }) => [{ type: 'Story', id: storyId }],
     }),
     regenerateCoverImage: builder.mutation({
       query: ({ storyId, customPrompt }) => ({
@@ -85,7 +86,7 @@ export const apiSlice = createApi({
         method: 'PUT',
         body: { customPrompt },
       }),
-      invalidatesTags: ['Story'],
+      invalidatesTags: (result, error, { storyId }) => [{ type: 'Story', id: storyId }],
     }),
     deleteStory: builder.mutation({
       query: (storyId) => ({
