@@ -21,6 +21,8 @@ export default function FollowUs() {
         linkedin_visible: data.data.linkedin_visible !== undefined ? data.data.linkedin_visible : true,
         twitter_url: data.data.twitter_url || '',
         twitter_visible: data.data.twitter_visible !== undefined ? data.data.twitter_visible : true,
+        tiktok_url: data.data.tiktok_url || '',
+        tiktok_visible: data.data.tiktok_visible !== undefined ? data.data.tiktok_visible : true,
         is_visible: data.data.is_visible !== undefined ? data.data.is_visible : true,
       });
     }
@@ -65,7 +67,7 @@ export default function FollowUs() {
       <div className="p-6 sm:p-10">
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            
+
             {/* Facebook */}
             <div className="space-y-2">
               <div className="flex justify-between items-center">
@@ -79,8 +81,8 @@ export default function FollowUs() {
                 </label>
               </div>
               <input
-                {...register('facebook_url', { 
-                  pattern: { value: /^(https?:\/\/.*)?$/, message: 'Must be a valid URL' } 
+                {...register('facebook_url', {
+                  pattern: { value: /^(https?:\/\/.*)?$/, message: 'Must be a valid URL' }
                 })}
                 placeholder="https://facebook.com/yourpage"
                 className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-[#0a192f] focus:border-transparent outline-none transition-all"
@@ -101,8 +103,8 @@ export default function FollowUs() {
                 </label>
               </div>
               <input
-                {...register('instagram_url', { 
-                  pattern: { value: /^(https?:\/\/.*)?$/, message: 'Must be a valid URL' } 
+                {...register('instagram_url', {
+                  pattern: { value: /^(https?:\/\/.*)?$/, message: 'Must be a valid URL' }
                 })}
                 placeholder="https://instagram.com/yourpage"
                 className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-[#0a192f] focus:border-transparent outline-none transition-all"
@@ -123,8 +125,8 @@ export default function FollowUs() {
                 </label>
               </div>
               <input
-                {...register('linkedin_url', { 
-                  pattern: { value: /^(https?:\/\/.*)?$/, message: 'Must be a valid URL' } 
+                {...register('linkedin_url', {
+                  pattern: { value: /^(https?:\/\/.*)?$/, message: 'Must be a valid URL' }
                 })}
                 placeholder="https://linkedin.com/company/yourpage"
                 className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-[#0a192f] focus:border-transparent outline-none transition-all"
@@ -145,13 +147,35 @@ export default function FollowUs() {
                 </label>
               </div>
               <input
-                {...register('twitter_url', { 
-                  pattern: { value: /^(https?:\/\/.*)?$/, message: 'Must be a valid URL' } 
+                {...register('twitter_url', {
+                  pattern: { value: /^(https?:\/\/.*)?$/, message: 'Must be a valid URL' }
                 })}
                 placeholder="https://twitter.com/yourpage"
                 className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-[#0a192f] focus:border-transparent outline-none transition-all"
               />
               {errors.twitter_url && <p className="text-red-500 text-xs">{(errors.twitter_url as any).message}</p>}
+            </div>
+
+            {/* TikTok */}
+            <div className="space-y-2">
+              <div className="flex justify-between items-center">
+                <label className="flex items-center text-sm font-bold text-gray-700">
+                  <LinkIcon className="w-4 h-4 mr-2 text-black" />
+                  TikTok URL
+                </label>
+                <label className="flex items-center text-xs font-semibold text-gray-600 cursor-pointer hover:text-black transition-colors">
+                  <input type="checkbox" {...register('tiktok_visible')} className="mr-1.5 w-3.5 h-3.5 text-black rounded focus:ring-gray-900" />
+                  Show
+                </label>
+              </div>
+              <input
+                {...register('tiktok_url', {
+                  pattern: { value: /^(https?:\/\/.*)?$/, message: 'Must be a valid URL' }
+                })}
+                placeholder="https://www.tiktok.com/@dreamtalesbooks?_r=1&_t=ZS-991zJuf1jph"
+                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-[#0a192f] focus:border-transparent outline-none transition-all"
+              />
+              {errors.tiktok_url && <p className="text-red-500 text-xs">{(errors.tiktok_url as any).message}</p>}
             </div>
 
           </div>
@@ -169,8 +193,8 @@ export default function FollowUs() {
           </div>
 
           <div className="pt-6 flex justify-end">
-            <button 
-              type="submit" 
+            <button
+              type="submit"
               disabled={isUpdating}
               className="px-6 py-3 bg-[#0a192f] text-white font-bold rounded-xl hover:bg-[#0f3a4a] transition-colors disabled:opacity-70 flex items-center shadow-lg hover:shadow-xl hover:-translate-y-0.5 duration-200"
             >
