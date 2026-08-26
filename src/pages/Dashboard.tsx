@@ -1,9 +1,9 @@
-import { useState} from 'react';
-import { useGetAllStoriesQuery, useRegenerateCoverImageMutation, useDeleteStoryMutation } from '../store/apiSlice';
-import { Loader2, BookOpen, PlusCircle, Eye, ChevronLeft, ChevronRight, Brain, RefreshCw, Trash2, X, CheckCircle } from 'lucide-react';
+import { useState } from 'react';
+import { useGetAllStoriesQuery, useRegenerateCoverImageMutation, useDeleteStoryMutation, useToggleFeaturedStoryMutation } from '../store/apiSlice';
+import { Loader2, BookOpen, PlusCircle, Eye, ChevronLeft, ChevronRight, Brain, RefreshCw, Trash2, X, CheckCircle, Star } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
-function StoryCard({ story, onDeleteClick, onUpdateCoverClick, isDeleting, isRegenerating }: { story: any, onDeleteClick: (story: any) => void, onUpdateCoverClick: (story: any) => void, isDeleting: boolean, isRegenerating: boolean }) {
+function StoryCard({ story, onDeleteClick, onUpdateCoverClick, onToggleFeatured, isDeleting, isRegenerating, isTogglingFeatured }: { story: any, onDeleteClick: (story: any) => void, onUpdateCoverClick: (story: any) => void, onToggleFeatured: (story: any) => void, isDeleting: boolean, isRegenerating: boolean, isTogglingFeatured: boolean }) {
   const handleDeleteStory = () => {
     onDeleteClick(story);
   };
@@ -12,8 +12,19 @@ function StoryCard({ story, onDeleteClick, onUpdateCoverClick, isDeleting, isReg
     onUpdateCoverClick(story);
   };
 
+  const handleToggleFeatured = (e: React.MouseEvent) => {
+    e.preventDefault();
+    onToggleFeatured(story);
+  };
+
+  const isFeatured = story.is_featured;
+
   return (
-    <div className={`bg-white rounded-3xl shadow-md border border-gray-100 overflow-hidden hover:shadow-xl transition-all duration-300 group flex flex-col hover:-translate-y-1 ${isDeleting ? 'opacity-50 pointer-events-none' : ''}`}>
+    <div className={`bg-white rounded-3xl shadow-md border-2 overflow-hidden hover:shadow-xl transition-all duration-300 group flex flex-col hover:-translate-y-1 ${isDeleting ? 'opacity-50 pointer-events-none' : ''
+      } ${isFeatured
+        ? 'border-amber-400 shadow-[0_0_0_2px_rgba(251,191,36,0.3),0_4px_24px_rgba(251,191,36,0.2)]'
+        : 'border-gray-100'
+      }`}>
       <div className="h-64 bg-gradient-to-br from-[#0d9488]/20 to-[#0f3a4a]/20 relative overflow-hidden group/image">
         {story.cover_image ? (
           <img
@@ -33,13 +44,13 @@ function StoryCard({ story, onDeleteClick, onUpdateCoverClick, isDeleting, isReg
             {story.title}
           </h3>
         </div>
-        
+
         {/* Loading Overlay */}
         {isRegenerating && (
           <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/10 z-20">
             <div className="bg-white/90 backdrop-blur-md p-4 rounded-3xl shadow-xl flex flex-col items-center">
               <Brain className="w-8 h-8 text-[#0d9488] animate-pulse mb-2" />
-              <p className="text-[#0f3a4a] font-bold text-xs text-center">Crafting<br/>Cover...</p>
+              <p className="text-[#0f3a4a] font-bold text-xs text-center">Crafting<br />Cover...</p>
             </div>
           </div>
         )}
@@ -70,11 +81,19 @@ function StoryCard({ story, onDeleteClick, onUpdateCoverClick, isDeleting, isReg
           </div>
         )}
 
-        <div className="absolute top-4 right-4 bg-white/95 backdrop-blur-md px-3 py-1.5 rounded-full text-xs font-bold text-[#0d9488] shadow-lg">
-          {story.age_group} yrs
+        <div className="absolute top-4 right-4 flex items-center gap-2 z-30">
+          {isFeatured && (
+            <div className="bg-gradient-to-r from-amber-400 to-amber-500 px-3 py-1.5 rounded-full text-[10px] font-black tracking-wider uppercase text-white shadow-lg shadow-amber-400/30 flex items-center gap-1.5 border border-amber-300">
+              <Star className="w-3.5 h-3.5 fill-white" />
+              Featured
+            </div>
+          )}
+          <div className="bg-white/95 backdrop-blur-md px-3 py-1.5 rounded-full text-xs font-bold text-[#0d9488] shadow-lg border border-white/20">
+            {story.age_group} yrs
+          </div>
         </div>
       </div>
-      <div className="p-5 flex-1 flex flex-col bg-white">
+      <div className={`p-5 flex-1 flex flex-col ${isFeatured ? 'bg-gradient-to-b from-amber-50/80 to-white' : 'bg-white'}`}>
         <p className="text-sm text-gray-600 line-clamp-3 flex-1 leading-relaxed">
           {story.description}
         </p>
@@ -82,13 +101,29 @@ function StoryCard({ story, onDeleteClick, onUpdateCoverClick, isDeleting, isReg
           <span className="text-xs font-bold text-gray-500 bg-gray-50 px-3 py-1.5 rounded-full border border-gray-100">
             {story.page_count} Pages
           </span>
-          <Link
-            to={`/preview/${story.id}`}
-            className="flex items-center text-sm font-extrabold text-[#0d9488] hover:text-[#0a192f] transition-colors"
-          >
-            <Eye className="w-4 h-4 mr-1.5" />
-            Preview Story
-          </Link>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={handleToggleFeatured}
+              disabled={isTogglingFeatured}
+              title={isFeatured ? 'Unfeature story' : 'Feature on homepage'}
+              className={`flex items-center justify-center p-1.5 rounded-full transition-all shadow-sm ${isFeatured
+                  ? 'bg-amber-400 text-white hover:bg-amber-500'
+                  : 'bg-gray-100 text-gray-400 hover:text-amber-400 hover:bg-amber-50'
+                } ${isTogglingFeatured ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+            >
+              {isTogglingFeatured
+                ? <Loader2 className="w-4 h-4 animate-spin" />
+                : <Star className={`w-4 h-4 ${isFeatured ? 'fill-white' : ''}`} />
+              }
+            </button>
+            <Link
+              to={`/preview/${story.id}`}
+              className="flex items-center text-sm font-extrabold text-[#0d9488] hover:text-[#0a192f] transition-colors"
+            >
+              <Eye className="w-4 h-4 mr-1.5" />
+              Preview Story
+            </Link>
+          </div>
         </div>
       </div>
     </div>
@@ -100,7 +135,9 @@ export default function Dashboard() {
   const { data, isLoading, isError, isFetching } = useGetAllStoriesQuery({ page, limit: 9 });
   const [deleteStory, { isLoading: isDeletingStory }] = useDeleteStoryMutation();
   const [regenerateCoverImage, { isLoading: isRegeneratingCover }] = useRegenerateCoverImageMutation();
-  
+  const [toggleFeaturedStory, { isLoading: isTogglingFeatured }] = useToggleFeaturedStoryMutation();
+  const [togglingStoryId, setTogglingStoryId] = useState<string | null>(null);
+
   const [storyToDelete, setStoryToDelete] = useState<any>(null);
   const [storyToUpdateCover, setStoryToUpdateCover] = useState<any>(null);
   const [customPrompt, setCustomPrompt] = useState('');
@@ -119,6 +156,19 @@ export default function Dashboard() {
       alert(err?.data?.message || err?.message || 'Failed to delete story');
     } finally {
       setStoryToDelete(null);
+    }
+  };
+
+  const handleToggleFeatured = async (story: any) => {
+    setTogglingStoryId(story.id);
+    try {
+      const result: any = await toggleFeaturedStory(story.id).unwrap();
+      setToastMsg(result?.message || `Story featured status updated!`);
+      setTimeout(() => setToastMsg(''), 4000);
+    } catch (err: any) {
+      alert(err?.data?.message || err?.message || 'Failed to toggle featured status');
+    } finally {
+      setTogglingStoryId(null);
     }
   };
 
@@ -174,62 +224,64 @@ export default function Dashboard() {
 
       <div className="p-6 sm:p-10">
 
-      {stories.length === 0 ? (
-        <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-12 text-center">
-          <div className="w-20 h-20 bg-indigo-50 text-indigo-500 rounded-full flex items-center justify-center mx-auto mb-4">
-            <BookOpen className="w-10 h-10" />
-          </div>
-          <h2 className="text-xl font-bold text-gray-900 mb-2">No stories generated yet</h2>
-          <p className="text-gray-500 mb-6">Create your first story to get started.</p>
-          <Link
-            to="/create"
-            className="inline-flex items-center px-6 py-3 bg-indigo-600 text-white font-semibold rounded-xl hover:bg-indigo-700 transition-colors"
-          >
-            <PlusCircle className="w-5 h-5 mr-2" />
-            Create First Story
-          </Link>
-        </div>
-      ) : (
-        <>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {stories.map((story: any) => (
-              <StoryCard 
-                key={story.id} 
-                story={story} 
-                onDeleteClick={setStoryToDelete} 
-                onUpdateCoverClick={setStoryToUpdateCover}
-                isDeleting={isDeletingStory && storyToDelete?.id === story.id} 
-                isRegenerating={isRegeneratingCover && storyToUpdateCover?.id === story.id}
-              />
-            ))}
-          </div>
-          
-          {/* Pagination Controls */}
-          {meta && meta.total > meta.limit && (
-            <div className="mt-12 flex justify-center items-center space-x-4">
-              <button
-                onClick={() => setPage((p) => Math.max(1, p - 1))}
-                disabled={page === 1 || isFetching}
-                className="flex items-center px-4 py-2 bg-white border border-gray-200 rounded-xl text-sm font-semibold text-gray-700 hover:bg-gray-50 disabled:opacity-50 transition-colors"
-              >
-                <ChevronLeft className="w-4 h-4 mr-1" />
-                Previous
-              </button>
-              <span className="text-sm font-medium text-gray-500">
-                Page {meta.page} of {Math.ceil(meta.total / meta.limit)}
-              </span>
-              <button
-                onClick={() => setPage((p) => Math.min(Math.ceil(meta.total / meta.limit), p + 1))}
-                disabled={page >= Math.ceil(meta.total / meta.limit) || isFetching}
-                className="flex items-center px-4 py-2 bg-white border border-gray-200 rounded-xl text-sm font-semibold text-gray-700 hover:bg-gray-50 disabled:opacity-50 transition-colors"
-              >
-                Next
-                <ChevronRight className="w-4 h-4 ml-1" />
-              </button>
+        {stories.length === 0 ? (
+          <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-12 text-center">
+            <div className="w-20 h-20 bg-indigo-50 text-indigo-500 rounded-full flex items-center justify-center mx-auto mb-4">
+              <BookOpen className="w-10 h-10" />
             </div>
-          )}
-        </>
-      )}
+            <h2 className="text-xl font-bold text-gray-900 mb-2">No stories generated yet</h2>
+            <p className="text-gray-500 mb-6">Create your first story to get started.</p>
+            <Link
+              to="/create"
+              className="inline-flex items-center px-6 py-3 bg-indigo-600 text-white font-semibold rounded-xl hover:bg-indigo-700 transition-colors"
+            >
+              <PlusCircle className="w-5 h-5 mr-2" />
+              Create First Story
+            </Link>
+          </div>
+        ) : (
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {stories.map((story: any) => (
+                <StoryCard
+                  key={story.id}
+                  story={story}
+                  onDeleteClick={setStoryToDelete}
+                  onUpdateCoverClick={setStoryToUpdateCover}
+                  onToggleFeatured={handleToggleFeatured}
+                  isDeleting={isDeletingStory && storyToDelete?.id === story.id}
+                  isRegenerating={isRegeneratingCover && storyToUpdateCover?.id === story.id}
+                  isTogglingFeatured={isTogglingFeatured && togglingStoryId === story.id}
+                />
+              ))}
+            </div>
+
+            {/* Pagination Controls */}
+            {meta && meta.total > meta.limit && (
+              <div className="mt-12 flex justify-center items-center space-x-4">
+                <button
+                  onClick={() => setPage((p) => Math.max(1, p - 1))}
+                  disabled={page === 1 || isFetching}
+                  className="flex items-center px-4 py-2 bg-white border border-gray-200 rounded-xl text-sm font-semibold text-gray-700 hover:bg-gray-50 disabled:opacity-50 transition-colors"
+                >
+                  <ChevronLeft className="w-4 h-4 mr-1" />
+                  Previous
+                </button>
+                <span className="text-sm font-medium text-gray-500">
+                  Page {meta.page} of {Math.ceil(meta.total / meta.limit)}
+                </span>
+                <button
+                  onClick={() => setPage((p) => Math.min(Math.ceil(meta.total / meta.limit), p + 1))}
+                  disabled={page >= Math.ceil(meta.total / meta.limit) || isFetching}
+                  className="flex items-center px-4 py-2 bg-white border border-gray-200 rounded-xl text-sm font-semibold text-gray-700 hover:bg-gray-50 disabled:opacity-50 transition-colors"
+                >
+                  Next
+                  <ChevronRight className="w-4 h-4 ml-1" />
+                </button>
+              </div>
+            )}
+          </>
+        )}
       </div>
 
       {/* Delete Confirmation Modal */}
@@ -269,7 +321,7 @@ export default function Dashboard() {
             <p className="text-sm text-gray-600 mb-6 leading-relaxed">
               Provide custom instructions for the AI to guide the new cover generation for <span className="font-bold text-gray-900">"{storyToUpdateCover.title}"</span>. Leave blank to let the AI decide.
             </p>
-            
+
             <textarea
               className="w-full bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-xl focus:ring-[#0d9488] focus:border-[#0d9488] block p-4 mb-6 resize-none shadow-inner"
               rows={4}
