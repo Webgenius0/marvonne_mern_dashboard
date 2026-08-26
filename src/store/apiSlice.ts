@@ -95,6 +95,13 @@ export const apiSlice = createApi({
       }),
       invalidatesTags: ['Story'],
     }),
+    toggleFeaturedStory: builder.mutation({
+      query: (storyId) => ({
+        url: `/story/${storyId}/toggle-featured`,
+        method: 'PATCH',
+      }),
+      invalidatesTags: ['Story'],
+    }),
     getSettings: builder.query({
       query: () => '/settings',
       providesTags: ['Settings'],
@@ -270,6 +277,7 @@ export const {
   useRegeneratePageIllustrationMutation,
   useRegenerateCoverImageMutation,
   useDeleteStoryMutation,
+  useToggleFeaturedStoryMutation,
   useGetSettingsQuery,
   useUpdateSettingsMutation,
   useGetStoryStatusQuery,
