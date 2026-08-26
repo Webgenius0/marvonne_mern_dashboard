@@ -19,86 +19,199 @@ function StoryCard({ story, onDeleteClick, onUpdateCoverClick, onToggleFeatured,
 
   const isFeatured = story.is_featured;
 
+  const SPINE_WIDTH = 40;
+
   return (
-    <div className={`bg-white rounded-3xl shadow-md border-2 overflow-hidden hover:shadow-xl transition-all duration-300 group flex flex-col hover:-translate-y-1 ${isDeleting ? 'opacity-50 pointer-events-none' : ''
-      } ${isFeatured
-        ? 'border-amber-400 shadow-[0_0_0_2px_rgba(251,191,36,0.3),0_4px_24px_rgba(251,191,36,0.2)]'
-        : 'border-gray-100'
-      }`}>
-      <div className="h-64 bg-gradient-to-br from-[#0d9488]/20 to-[#0f3a4a]/20 relative overflow-hidden group/image">
-        {story.cover_image ? (
-          <img
-            src={story.cover_image}
-            alt={story.title}
-            className={`w-full h-full object-cover group-hover:scale-105 transition-all duration-700 ease-out ${isRegenerating ? 'opacity-40 blur-sm' : 'opacity-100'}`}
+    <div className={`flex flex-col items-center gap-4 group w-full ${isDeleting ? 'opacity-50 pointer-events-none' : ''}`}>
+      {/* 3D Book */}
+      <div
+        className="relative flex items-center justify-center flex-shrink-0"
+        style={{ perspective: "1400px", width: "100%", height: "320px", overflow: "visible" }}
+      >
+        {/* Book wrapper — rotated to show spine */}
+        <div
+          className="relative transition-transform duration-700 ease-out"
+          style={{
+            width: "240px",
+            height: "300px",
+            transformStyle: "preserve-3d",
+            transform: "rotateY(18deg) rotateX(0deg)",
+          }}
+          onMouseEnter={(e) => {
+            (e.currentTarget as HTMLDivElement).style.transform = "rotateY(8deg) rotateX(0deg) scale(1.03)";
+          }}
+          onMouseLeave={(e) => {
+            (e.currentTarget as HTMLDivElement).style.transform = "rotateY(18deg) rotateX(0deg)";
+          }}
+        >
+          {/* ── Ground shadow ── */}
+          <div
+            className="absolute rounded-full bg-black/30 blur-2xl"
+            style={{
+              width: "220px", height: "24px",
+              bottom: "-25px", left: "10px",
+              transform: "translateZ(-30px) rotateX(85deg)",
+            }}
           />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center">
-            <BookOpen className={`w-16 h-16 text-[#0d9488]/40 ${isRegenerating ? 'opacity-40 blur-sm' : 'opacity-100'}`} />
-          </div>
-        )}
 
-        {/* Title Overlay Gradient */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent flex items-end p-5">
-          <h3 className="text-2xl font-extrabold text-white line-clamp-2 leading-tight drop-shadow-md">
-            {story.title}
-          </h3>
-        </div>
+          {/* ── Front cover ── */}
+          <div
+            className="absolute inset-0 overflow-hidden rounded-r-sm bg-white"
+            style={{ transform: `translateZ(${SPINE_WIDTH / 2}px)` }}
+          >
+            {story.cover_image ? (
+              <img
+                src={story.cover_image}
+                alt={story.title}
+                className={`w-full h-full object-fill transition-all duration-700 ease-out ${isRegenerating ? 'opacity-40 blur-sm' : 'opacity-100'}`}
+              />
+            ) : (
+              <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-[#0d9488]/20 to-[#0f3a4a]/20">
+                <BookOpen className={`w-16 h-16 text-[#0d9488]/40 ${isRegenerating ? 'opacity-40 blur-sm' : 'opacity-100'}`} />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent flex items-end p-4">
+                  <h3 className="text-xl font-extrabold text-white line-clamp-2 leading-tight drop-shadow-md">
+                    {story.title}
+                  </h3>
+                </div>
+              </div>
+            )}
+            
+            {/* Crease line */}
+            <div className="absolute top-0 left-[6px] bottom-0 w-[3px] bg-gradient-to-r from-black/25 via-black/10 to-transparent mix-blend-multiply pointer-events-none" />
+            <div className="absolute top-0 left-[5px] bottom-0 w-[1px] bg-white/40 pointer-events-none" />
+            {/* Hover gloss */}
+            <div className="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
+            {/* Hardcover border */}
+            <div className="absolute inset-0 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.2),inset_3px_0_18px_rgba(0,0,0,0.12)] pointer-events-none rounded-r-sm" />
 
-        {/* Loading Overlay */}
-        {isRegenerating && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/10 z-20">
-            <div className="bg-white/90 backdrop-blur-md p-4 rounded-3xl shadow-xl flex flex-col items-center">
-              <Brain className="w-8 h-8 text-[#0d9488] animate-pulse mb-2" />
-              <p className="text-[#0f3a4a] font-bold text-xs text-center">Crafting<br />Cover...</p>
+            {/* Dashboard Specific Overlays on Cover */}
+            {isRegenerating && (
+              <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/10 z-20">
+                <div className="bg-white/90 backdrop-blur-md p-4 rounded-3xl shadow-xl flex flex-col items-center">
+                  <Brain className="w-8 h-8 text-[#0d9488] animate-pulse mb-2" />
+                  <p className="text-[#0f3a4a] font-bold text-xs text-center">Crafting<br />Cover...</p>
+                </div>
+              </div>
+            )}
+
+            {!isRegenerating && (
+              <div className="absolute top-3 left-3 z-30 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-all">
+                <button
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleUpdateCoverClick();
+                  }}
+                  className="flex items-center px-3 py-1.5 bg-black/60 hover:bg-black/80 backdrop-blur-md text-white text-xs font-bold rounded-full transition-all shadow-lg"
+                >
+                  <RefreshCw className="w-3 h-3 mr-1.5" />
+                  Update Cover
+                </button>
+                {!isFeatured && (
+                  <button
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handleDeleteStory();
+                    }}
+                    className="flex items-center px-3 py-1.5 bg-red-500/80 hover:bg-red-600 backdrop-blur-md text-white text-xs font-bold rounded-full transition-all shadow-lg w-max"
+                  >
+                    <Trash2 className="w-3 h-3 mr-1.5" />
+                    Delete
+                  </button>
+                )}
+              </div>
+            )}
+
+            <div className="absolute top-3 right-3 flex flex-col items-end gap-2 z-30">
+              {isFeatured && (
+                <div className="bg-gradient-to-r from-amber-400 to-amber-500 px-2.5 py-1 rounded-full text-[10px] font-black tracking-wider uppercase text-white shadow-lg shadow-amber-400/30 flex items-center gap-1 border border-amber-300">
+                  <Star className="w-3 h-3 fill-white" />
+                  Featured
+                </div>
+              )}
+              <div className="bg-white/95 backdrop-blur-md px-2.5 py-1 rounded-full text-[10px] font-bold text-[#0d9488] shadow-lg border border-white/20">
+                {story.age_group} yrs
+              </div>
             </div>
           </div>
-        )}
 
-        {/* Action Buttons Group */}
-        {!isRegenerating && (
-          <div className="absolute top-4 left-4 z-30 flex items-center space-x-2 opacity-0 lg:group-hover/image:opacity-100 transition-all" style={{ opacity: window.innerWidth < 1024 ? 1 : undefined }}>
-            <button
-              onClick={(e) => {
-                e.preventDefault();
-                handleUpdateCoverClick();
-              }}
-              className="flex items-center px-3 py-1.5 bg-black/60 hover:bg-black/80 backdrop-blur-md text-white text-xs font-bold rounded-full transition-all shadow-lg"
-            >
-              <RefreshCw className="w-3 h-3 mr-1.5" />
-              Update Cover
-            </button>
-            <button
-              onClick={(e) => {
-                e.preventDefault();
-                handleDeleteStory();
-              }}
-              className="flex items-center px-3 py-1.5 bg-red-500/80 hover:bg-red-600 backdrop-blur-md text-white text-xs font-bold rounded-full transition-all shadow-lg"
-            >
-              <Trash2 className="w-3 h-3 mr-1.5" />
-              Delete
-            </button>
-          </div>
-        )}
+          {/* ── Back cover ── */}
+          <div
+            className="absolute inset-0 bg-[#0a192f] rounded-l-sm"
+            style={{ transform: `translateZ(-${SPINE_WIDTH / 2}px) rotateY(180deg)` }}
+          />
 
-        <div className="absolute top-4 right-4 flex items-center gap-2 z-30">
-          {isFeatured && (
-            <div className="bg-gradient-to-r from-amber-400 to-amber-500 px-3 py-1.5 rounded-full text-[10px] font-black tracking-wider uppercase text-white shadow-lg shadow-amber-400/30 flex items-center gap-1.5 border border-amber-300">
-              <Star className="w-3.5 h-3.5 fill-white" />
-              Featured
-            </div>
-          )}
-          <div className="bg-white/95 backdrop-blur-md px-3 py-1.5 rounded-full text-xs font-bold text-[#0d9488] shadow-lg border border-white/20">
-            {story.age_group} yrs
+          {/* ── Spine ── */}
+          <div
+            className="absolute top-0 bottom-0 flex flex-col items-center justify-between py-4"
+            style={{
+              width: `${SPINE_WIDTH}px`,
+              left: `-${SPINE_WIDTH / 2}px`,
+              transform: "rotateY(-90deg)",
+              background: "linear-gradient(to right, #0f3a4a, #0d9488, #115e59)",
+              boxShadow: "inset -5px 0 12px rgba(0,0,0,0.45), inset 2px 0 4px rgba(255,255,255,0.15)",
+            }}
+          >
+            <div className="w-full h-[2px] bg-amber-400 shadow-sm" />
+            <span
+              className="text-white text-[11px] font-bold tracking-[0.18em] uppercase opacity-95 drop-shadow flex-1 flex items-center justify-center"
+              style={{ writingMode: "vertical-rl", transform: "rotate(180deg)" }}
+            >
+              DreamTales
+            </span>
+            <div className="w-full h-[2px] bg-amber-400 shadow-sm" />
           </div>
+
+          {/* ── Page block edges ── */}
+          <div
+            className="absolute rounded-r-sm"
+            style={{
+              width: `${SPINE_WIDTH}px`, height: "calc(100% - 6px)",
+              top: "3px", right: `-${SPINE_WIDTH / 2}px`,
+              transform: "rotateY(90deg)",
+              backgroundImage: "repeating-linear-gradient(to bottom,#fafafa 0px,#fafafa 2px,#e8e8e8 2px,#e8e8e8 4px)",
+              boxShadow: "inset -5px 0 10px rgba(0,0,0,0.08)",
+            }}
+          />
+          <div
+            className="absolute"
+            style={{
+              width: "calc(100% - 4px)", left: "2px",
+              height: `${SPINE_WIDTH}px`, top: `-${SPINE_WIDTH / 2}px`,
+              transform: "rotateX(90deg)",
+              backgroundImage: "repeating-linear-gradient(to right,#fafafa 0px,#fafafa 2px,#e8e8e8 2px,#e8e8e8 4px)",
+              boxShadow: "inset 0 -5px 10px rgba(0,0,0,0.08)",
+            }}
+          />
+          <div
+            className="absolute"
+            style={{
+              width: "calc(100% - 4px)", left: "2px",
+              height: `${SPINE_WIDTH}px`, bottom: `-${SPINE_WIDTH / 2}px`,
+              transform: "rotateX(-90deg)",
+              backgroundImage: "repeating-linear-gradient(to right,#fafafa 0px,#fafafa 2px,#e8e8e8 2px,#e8e8e8 4px)",
+              boxShadow: "inset 0 5px 10px rgba(0,0,0,0.08)",
+            }}
+          />
         </div>
       </div>
-      <div className={`p-5 flex-1 flex flex-col ${isFeatured ? 'bg-gradient-to-b from-amber-50/80 to-white' : 'bg-white'}`}>
-        <p className="text-sm text-gray-600 line-clamp-3 flex-1 leading-relaxed">
-          {story.description}
-        </p>
-        <div className="mt-4 pt-4 border-t border-gray-100 flex items-center justify-between">
-          <span className="text-xs font-bold text-gray-500 bg-gray-50 px-3 py-1.5 rounded-full border border-gray-100">
+
+      {/* ── Info Card Below Book ── */}
+      <div className={`w-full max-w-[320px] rounded-2xl shadow-[0_4px_20px_rgba(0,0,0,0.08)] px-5 py-4 flex flex-col gap-4 border ${isFeatured ? 'bg-gradient-to-b from-amber-50/50 to-white border-amber-200 shadow-amber-100' : 'bg-white border-gray-100/80'} min-h-[160px]`}>
+        <div className="flex-1 min-w-0">
+          <p className="font-bold text-[#0a192f] text-[15px] leading-snug line-clamp-2 min-h-[44px]">
+            {story.title}
+          </p>
+          <p className="text-sm text-gray-500 line-clamp-2 mt-2 leading-relaxed">
+            {story.description}
+          </p>
+        </div>
+
+        {/* Divider */}
+        <div className="h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent" />
+
+        {/* Actions row */}
+        <div className="flex items-center justify-between">
+          <span className="text-[11px] font-bold text-gray-500 bg-gray-50 px-3 py-1.5 rounded-full border border-gray-100">
             {story.page_count} Pages
           </span>
           <div className="flex items-center gap-3">
@@ -106,9 +219,9 @@ function StoryCard({ story, onDeleteClick, onUpdateCoverClick, onToggleFeatured,
               onClick={handleToggleFeatured}
               disabled={isTogglingFeatured}
               title={isFeatured ? 'Unfeature story' : 'Feature on homepage'}
-              className={`flex items-center justify-center p-1.5 rounded-full transition-all shadow-sm ${isFeatured
-                  ? 'bg-amber-400 text-white hover:bg-amber-500'
-                  : 'bg-gray-100 text-gray-400 hover:text-amber-400 hover:bg-amber-50'
+              className={`flex items-center justify-center p-2 rounded-full transition-all shadow-sm ${isFeatured
+                ? 'bg-amber-400 text-white hover:bg-amber-500'
+                : 'bg-gray-100 text-gray-400 hover:text-amber-400 hover:bg-amber-50'
                 } ${isTogglingFeatured ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
             >
               {isTogglingFeatured
@@ -118,10 +231,10 @@ function StoryCard({ story, onDeleteClick, onUpdateCoverClick, onToggleFeatured,
             </button>
             <Link
               to={`/preview/${story.id}`}
-              className="flex items-center text-sm font-extrabold text-[#0d9488] hover:text-[#0a192f] transition-colors"
+              className="flex items-center px-4 py-2 bg-[#0d9488]/10 text-[#0d9488] text-[13px] font-bold rounded-xl hover:bg-[#0d9488] hover:text-white transition-all shadow-sm"
             >
               <Eye className="w-4 h-4 mr-1.5" />
-              Preview Story
+              Preview
             </Link>
           </div>
         </div>
