@@ -12,7 +12,7 @@ export const apiSlice = createApi({
       return headers;
     },
   }),
-  tagTypes: ['Story', 'Auth', 'Settings', 'User', 'Order', 'Faq', 'FollowUs', 'Subscriber', 'SeeTheMagic', 'HeroCms', 'Illustration'],
+  tagTypes: ['Story', 'Auth', 'Settings', 'User', 'Order', 'Faq', 'FollowUs', 'Subscriber', 'SeeTheMagic', 'HeroCms', 'SupportCms', 'Illustration', 'Contact'],
   endpoints: (builder) => ({
     login: builder.mutation({
       query: (credentials) => ({
@@ -26,6 +26,22 @@ export const apiSlice = createApi({
         url: '/auth/logout',
         method: 'POST',
       }),
+    }),
+    getContacts: builder.query({
+      query: (args: { page?: number; limit?: number } | void) => {
+        const argObj = (args || {}) as { page?: number; limit?: number };
+        const page = argObj.page || 1;
+        const limit = argObj.limit || 20;
+        return `/contacts?page=${page}&limit=${limit}`;
+      },
+      providesTags: ['Contact'],
+    }),
+    deleteContact: builder.mutation({
+      query: (id) => ({
+        url: `/contacts/${id}`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: ['Contact'],
     }),
     getAllUsers: builder.query({
       query: (args: { page?: number; limit?: number } | void) => {
@@ -200,6 +216,18 @@ export const apiSlice = createApi({
       }),
       invalidatesTags: ['HeroCms'],
     }),
+    getSupportCms: builder.query({
+      query: () => '/support-cms',
+      providesTags: ['SupportCms'],
+    }),
+    updateSupportCms: builder.mutation({
+      query: (data) => ({
+        url: '/support-cms',
+        method: 'PUT',
+        body: data,
+      }),
+      invalidatesTags: ['SupportCms'],
+    }),
     updateAdminProfile: builder.mutation({
       query: (data) => ({
         url: '/admin/update-profile',
@@ -268,6 +296,8 @@ export const apiSlice = createApi({
 export const {
   useLoginMutation,
   useLogoutMutation,
+  useGetContactsQuery,
+  useDeleteContactMutation,
   useGetAllUsersQuery,
   useDeleteUserMutation,
   useUpdateUserStatusMutation,
@@ -293,6 +323,8 @@ export const {
   useUpdateSeeTheMagicMutation,
   useGetHeroCmsQuery,
   useUpdateHeroCmsMutation,
+  useGetSupportCmsQuery,
+  useUpdateSupportCmsMutation,
   useGetGelatoStatsQuery,
   useUpdateAdminProfileMutation,
   useChangeAdminPasswordMutation,
