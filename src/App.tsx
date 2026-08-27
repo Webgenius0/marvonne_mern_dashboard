@@ -19,7 +19,8 @@ import Subscribers from './pages/Subscribers';
 import SeeTheMagicCMS from './pages/SeeTheMagicCMS';
 import HeroCMS from './pages/HeroCMS';
 import SupportCMS from './pages/SupportCMS';
-import { LogOut, BookOpen, PlusCircle, Settings as SettingsIcon, Users as UsersIcon, ShoppingCart, FileText, ChevronDown, HelpCircle, Share2, Mail, User, Image as ImageIcon } from 'lucide-react';
+import SupportMessages from './pages/SupportMessages';
+import { LogOut, BookOpen, PlusCircle, Settings as SettingsIcon, Users as UsersIcon, ShoppingCart, FileText, ChevronDown, HelpCircle, Share2, Mail, User, Image as ImageIcon, MessageSquare } from 'lucide-react';
 import { useDispatch } from 'react-redux';
 import { logout } from './store/authSlice';
 import { Link, useLocation } from 'react-router-dom';
@@ -143,7 +144,7 @@ const AdminLayout = ({ children }: { children: React.ReactNode }) => {
             {/* Sub-menu */}
             <div className={`overflow-hidden transition-all duration-300 ease-in-out ${isCmsOpen ? 'max-h-[500px] opacity-100 mt-2' : 'max-h-0 opacity-0'}`}>
               <div className="pl-11 pr-4 space-y-1">
-                <Link
+            <Link
                   to="/cms/faq"
                   className={`flex items-center px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${
                     location.pathname === '/cms/faq'
@@ -204,6 +205,19 @@ const AdminLayout = ({ children }: { children: React.ReactNode }) => {
               </div>
             </div>
           </div>
+
+          <Link
+            to="/support-messages"
+            className={`flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200 ${
+              location.pathname === '/support-messages'
+                ? 'bg-[#bef264] text-[#0a192f] shadow-[0_0_15px_rgba(190,242,100,0.4)]'
+                : 'text-gray-400 hover:text-white hover:bg-white/5'
+            }`}
+          >
+            <MessageSquare className="w-5 h-5 mr-3" />
+            Support Messages
+          </Link>
+
           <Link
             to="/settings"
             className={`flex items-center px-4 py-3 text-sm font-semibold rounded-xl transition-all duration-300 ${
@@ -453,6 +467,16 @@ function App() {
           <ProtectedRoute>
             <AdminLayout>
               <SupportCMS />
+            </AdminLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/support-messages"
+        element={
+          <ProtectedRoute>
+            <AdminLayout>
+              <SupportMessages />
             </AdminLayout>
           </ProtectedRoute>
         }
