@@ -36,6 +36,13 @@ export const apiSlice = createApi({
       },
       providesTags: ['Contact'],
     }),
+    deleteContact: builder.mutation({
+      query: (id) => ({
+        url: `/contacts/${id}`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: ['Contact'],
+    }),
     getAllUsers: builder.query({
       query: (args: { page?: number; limit?: number } | void) => {
         const argObj = (args || {}) as { page?: number; limit?: number };
@@ -290,6 +297,7 @@ export const {
   useLoginMutation,
   useLogoutMutation,
   useGetContactsQuery,
+  useDeleteContactMutation,
   useGetAllUsersQuery,
   useDeleteUserMutation,
   useUpdateUserStatusMutation,

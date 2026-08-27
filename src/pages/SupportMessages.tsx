@@ -1,12 +1,17 @@
-import { useState, useMemo } from 'react';
-import { useGetContactsQuery } from '../store/apiSlice';
-import { Loader2, ChevronLeft, ChevronRight, Mail, Phone, Calendar, User as UserIcon, Inbox } from 'lucide-react';
+import { useState, useMemo, useRef, useEffect } from 'react';
+import { useGetContactsQuery, useDeleteContactMutation } from '../store/apiSlice';
+import { Loader2, ChevronLeft, ChevronRight, Mail, Phone, Calendar, Inbox, Trash2, CheckCircle, XCircle } from 'lucide-react';
 import { format, formatDistanceToNow } from 'date-fns';
 
 const SupportMessages = () => {
   const [page, setPage] = useState(1);
+  const [toastMsg, setToastMsg] = useState('');
+  const [toastType, setToastType] = useState<'success' | 'error'>('success');
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [messageToDelete, setMessageToDelete] = useState<string | null>(null);
   const limit = 20; // Fetch more for inbox style
   const { data, isLoading } = useGetContactsQuery({ page, limit });
+  const [deleteContact, { isLoading: isDeleting }] = useDeleteContactMutation();
   const contacts = data?.data?.contacts || [];
   const totalPages = data?.data?.totalPages || 1;
   const total = data?.data?.total || 0;
@@ -20,7 +25,32 @@ const SupportMessages = () => {
     }
   }, [contacts, selectedId]);
 
+  const showToast = (msg: string, type: 'success' | 'error' = 'success') => {
+    setToastMsg(msg);
+    setToastType(type);
+    setTimeout(() => setToastMsg(''), 3000);
+  };
+
   const selectedMessage = contacts.find((c: any) => c.id === selectedId) || null;
+
+  const handleDelete = (id: string) => {
+    setMessageToDelete(id);
+    setIsDeleteModalOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!messageToDelete) return;
+    try {
+      await deleteContact(messageToDelete).unwrap();
+      showToast("Message deleted successfully", "success");
+      if (selectedId === messageToDelete) setSelectedId(null);
+    } catch (error) {
+      showToast("Failed to delete message", "error");
+    } finally {
+      setIsDeleteModalOpen(false);
+      setMessageToDelete(null);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -135,9 +165,20 @@ const SupportMessages = () => {
                           </div>
                         </div>
                       </div>
-                      <div className="text-xs font-medium text-gray-400 flex items-center bg-gray-50 px-3 py-1.5 rounded-full border border-gray-100">
-                        <Calendar className="w-3.5 h-3.5 mr-1.5" />
-                        {format(new Date(selectedMessage.created_at), 'MMMM d, yyyy h:mm a')}
+                      <div className="flex items-center space-x-3">
+                        <div className="text-xs font-medium text-gray-400 flex items-center bg-gray-50 px-3 py-1.5 rounded-full border border-gray-100">
+                          <Calendar className="w-3.5 h-3.5 mr-1.5" />
+                          {format(new Date(selectedMessage.created_at), 'MMMM d, yyyy h:mm a')}
+                        </div>
+                        <button 
+                          onClick={() => handleDelete(selectedMessage.id)}
+                          disabled={isDeleting}
+                          className="flex items-center px-3 py-1.5 text-xs font-medium text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors border border-transparent hover:border-red-100 disabled:opacity-50 cursor-pointer"
+                          title="Delete message"
+                        >
+                          {isDeleting ? <Loader2 className="w-3.5 h-3.5 animate-spin mr-1.5" /> : <Trash2 className="w-3.5 h-3.5 mr-1.5" />}
+                          {isDeleting ? 'Deleting...' : 'Delete'}
+                        </button>
                       </div>
                     </div>
                   </div>
@@ -161,6 +202,55 @@ const SupportMessages = () => {
           </>
         )}
       </div>
+
+      {/* Toast Notification */}
+      {toastMsg && (
+        <div className="fixed bottom-4 right-4 z-50 flex items-center bg-[#0a192f] text-white px-6 py-4 rounded-xl shadow-2xl animate-fade-in-up">
+          {toastType === 'success' ? (
+            <CheckCircle className="w-5 h-5 mr-3 text-[#bef264]" />
+          ) : (
+            <XCircle className="w-5 h-5 mr-3 text-red-500" />
+          )}
+          <p className="text-sm font-medium">{toastMsg}</p>
+          <button onClick={() => setToastMsg('')} className="ml-4 text-gray-400 hover:text-white">
+            <XCircle className="w-4 h-4" />
+          </button>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {isDeleteModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fade-in">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6 animate-scale-in">
+            <h3 className="text-xl font-bold text-gray-900 mb-2">Delete Message</h3>
+            <p className="text-gray-500 mb-6">
+              Are you sure you want to delete this support message? This action cannot be undone.
+            </p>
+            <div className="flex justify-end space-x-3">
+              <button
+                onClick={() => setIsDeleteModalOpen(false)}
+                className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmDelete}
+                disabled={isDeleting}
+                className="px-4 py-2 text-sm font-medium text-white bg-red-500 hover:bg-red-600 rounded-lg transition-colors disabled:opacity-50 flex items-center"
+              >
+                {isDeleting ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Deleting...
+                  </>
+                ) : (
+                  'Delete'
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
