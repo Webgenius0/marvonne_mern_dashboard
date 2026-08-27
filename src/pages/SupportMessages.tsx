@@ -1,4 +1,4 @@
-import { useState, useMemo, useRef, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import { useGetContactsQuery, useDeleteContactMutation } from '../store/apiSlice';
 import { Loader2, ChevronLeft, ChevronRight, Mail, Phone, Calendar, Inbox, Trash2, CheckCircle, XCircle } from 'lucide-react';
 import { format, formatDistanceToNow } from 'date-fns';
