@@ -18,6 +18,7 @@ import FollowUs from './pages/FollowUs';
 import Subscribers from './pages/Subscribers';
 import SeeTheMagicCMS from './pages/SeeTheMagicCMS';
 import HeroCMS from './pages/HeroCMS';
+import SupportCMS from './pages/SupportCMS';
 import { LogOut, BookOpen, PlusCircle, Settings as SettingsIcon, Users as UsersIcon, ShoppingCart, FileText, ChevronDown, HelpCircle, Share2, Mail, User, Image as ImageIcon } from 'lucide-react';
 import { useDispatch } from 'react-redux';
 import { logout } from './store/authSlice';
@@ -188,6 +189,17 @@ const AdminLayout = ({ children }: { children: React.ReactNode }) => {
                 >
                   <FileText className="w-4 h-4 mr-2" />
                   See The Magic
+                </Link>
+                <Link
+                  to="/cms/support"
+                  className={`flex items-center px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${
+                    location.pathname === '/cms/support'
+                      ? 'bg-[#bef264] text-[#0a192f] shadow-[0_0_15px_rgba(190,242,100,0.4)]'
+                      : 'text-gray-400 hover:text-white hover:bg-white/5'
+                  }`}
+                >
+                  <FileText className="w-4 h-4 mr-2" />
+                  Support Page
                 </Link>
               </div>
             </div>
@@ -431,6 +443,16 @@ function App() {
           <ProtectedRoute>
             <AdminLayout>
               <HeroCMS />
+            </AdminLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/cms/support"
+        element={
+          <ProtectedRoute>
+            <AdminLayout>
+              <SupportCMS />
             </AdminLayout>
           </ProtectedRoute>
         }

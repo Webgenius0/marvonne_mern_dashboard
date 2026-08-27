@@ -12,7 +12,7 @@ export const apiSlice = createApi({
       return headers;
     },
   }),
-  tagTypes: ['Story', 'Auth', 'Settings', 'User', 'Order', 'Faq', 'FollowUs', 'Subscriber', 'SeeTheMagic', 'HeroCms', 'Illustration'],
+  tagTypes: ['Story', 'Auth', 'Settings', 'User', 'Order', 'Faq', 'FollowUs', 'Subscriber', 'SeeTheMagic', 'HeroCms', 'SupportCms', 'Illustration'],
   endpoints: (builder) => ({
     login: builder.mutation({
       query: (credentials) => ({
@@ -200,6 +200,18 @@ export const apiSlice = createApi({
       }),
       invalidatesTags: ['HeroCms'],
     }),
+    getSupportCms: builder.query({
+      query: () => '/support-cms',
+      providesTags: ['SupportCms'],
+    }),
+    updateSupportCms: builder.mutation({
+      query: (data) => ({
+        url: '/support-cms',
+        method: 'PUT',
+        body: data,
+      }),
+      invalidatesTags: ['SupportCms'],
+    }),
     updateAdminProfile: builder.mutation({
       query: (data) => ({
         url: '/admin/update-profile',
@@ -293,6 +305,8 @@ export const {
   useUpdateSeeTheMagicMutation,
   useGetHeroCmsQuery,
   useUpdateHeroCmsMutation,
+  useGetSupportCmsQuery,
+  useUpdateSupportCmsMutation,
   useGetGelatoStatsQuery,
   useUpdateAdminProfileMutation,
   useChangeAdminPasswordMutation,
